@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Inbox, 
   Upload, 
@@ -15,13 +15,29 @@ import {
   ChevronRight,
   Trash2,
   Hash,
-  Scale
+  Scale,
+  LayoutGrid,
+  List
 } from 'lucide-react';
 
 function App() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState(() => 
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'card' : 'grid'
+  );
+  
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setViewMode('card');
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const rowsPerPage = 10;
   
   const pendingIntakes = 12; // Placeholder
@@ -474,15 +490,20 @@ function App() {
           </div>
         </div>
 
-        {/* Grid Container */}
+        {/* Grid/Card Container */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col mb-6">
           <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50 shrink-0 rounded-t-xl">
             <div className="flex items-center gap-3">
               <h2 className="text-sm font-bold text-brand-navy uppercase tracking-wider">Intake Pipeline Data</h2>
             </div>
+            <div className="flex bg-gray-200/60 rounded-lg p-1">
+               <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand-navy' : 'text-gray-500 hover:text-gray-700'}`} title="Table View"><List size={16} /></button>
+               <button onClick={() => setViewMode('card')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'card' ? 'bg-white shadow-sm text-brand-navy' : 'text-gray-500 hover:text-gray-700'}`} title="Card View"><LayoutGrid size={16} /></button>
+            </div>
           </div>
           
           <div className="overflow-x-auto">
+            {viewMode === 'grid' ? (
             <table className="w-full text-left border-collapse">
               <thead className="sticky top-0 z-20 bg-gray-50 shadow-sm border-b border-gray-200">
                 <tr>
@@ -573,6 +594,73 @@ function App() {
                 )}
               </tbody>
             </table>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 bg-gray-50/30">
+                {currentTableData.length > 0 ? currentTableData.map((row) => (
+                  <div key={row.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_15px_-4px_rgba(201,164,86,0.15)] transition-all flex flex-col relative group overflow-hidden">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-black font-mono text-brand-navy bg-brand-navy/5 px-2 py-0.5 rounded">{row.id}</span>
+                      <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 border border-gray-100">
+                        <button 
+                          onClick={() => setSelectedRow(row)}
+                          className="text-brand-navy hover:bg-brand-navy/10 transition-colors p-1.5 rounded"
+                          title="View Details"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button 
+                          onClick={() => setRowToDelete(row)}
+                          className="text-red-500 hover:bg-red-50 transition-colors p-1.5 rounded"
+                          title="Delete Record"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <h3 className="font-extrabold text-gray-900 text-base mb-1">{row.client}</h3>
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-3 flex-1">{row.description}</p>
+                    
+                    {row.tag && (
+                      <div className="mb-4">
+                        <span 
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-help shadow-sm ${
+                            row.tag === 'Real Filing' ? 'bg-[#C9A456]/10 text-[#b08b3e] border-[#C9A456]/30' :
+                            row.tag === 'Live Conflict Search' ? 'bg-red-50 text-red-600 border-red-200' :
+                            'bg-[#13243b]/5 text-[#13243b] border-[#13243b]/20'
+                          }`}
+                        >
+                          {row.tag}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-col gap-3 mt-auto pt-3 border-t border-gray-100">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[11px] text-gray-500 flex items-center gap-1 font-medium"><Clock size={12}/> {row.initiated}</span>
+                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md text-[10px] font-bold tracking-wide uppercase">{row.status}</span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center mt-1">
+                        <a href="#" className="text-brand-gold hover:text-[#b59247] font-semibold text-xs underline underline-offset-2">Open / Intake</a>
+                        <div className="flex gap-2">
+                           <button className="bg-gray-100 hover:bg-gray-200 text-brand-navy p-1.5 rounded transition-colors" title="Intake Summary">
+                             <FileText size={14} />
+                           </button>
+                           <button className="bg-brand-navy hover:bg-[#08152b] text-white p-1.5 rounded transition-colors shadow-sm" title="Conflict Analysis">
+                             <ShieldAlert size={14} />
+                           </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )) : (
+                  <div className="col-span-full p-8 text-center text-gray-500">
+                    No records found.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Pagination Controls */}
