@@ -23,17 +23,21 @@
 
 @layer utilities {
   .hover-scrollbar {
+    overflow-y: hidden;
+    scrollbar-gutter: stable;
+  }
+  .hover-scrollbar:hover {
     overflow-y: auto;
   }
+  /* Optional: Make the scrollbar sleek when it does appear */
   .hover-scrollbar::-webkit-scrollbar {
     width: 6px;
+  }
+  .hover-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
   .hover-scrollbar::-webkit-scrollbar-thumb {
-    background: transparent;
-    border-radius: 10px;
-  }
-  .hover-scrollbar:hover::-webkit-scrollbar-thumb {
     background: #cbd5e1;
+    border-radius: 10px;
   }
 }
