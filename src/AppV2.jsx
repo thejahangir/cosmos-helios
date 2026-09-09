@@ -67,7 +67,7 @@ function App() {
       riskLevel: 'Medium',
       jurisdiction: 'SDNY Federal',
       leadPartner: 'A. Patel',
-      description: 'Smith v. Horizon Logistics (breach of contract)',
+      description: 'Smith v. Horizon Logistics (breach of contract). This case involves a slip and fall incident that occurred on the premises during a heavily catered corporate event. The plaintiff alleges severe negligence regarding wet floors in the main lobby, citing failure to place adequate warning signage. Furthermore, the defense argues that the plaintiff was in a restricted area clearly marked as "Employees Only". The discovery phase has uncovered over 4,000 pages of security footage, incident reports, and witness testimonies. We need to conduct a thorough deposition schedule over the next three months. This matter requires immediate attention due to the high profile nature of the defendant and potential media coverage.',
       initiated: 'June 29, 2026 2:15 PM',
       type: 'New Matter Intake',
       client: 'Horizon Logistics Inc.',
@@ -75,7 +75,7 @@ function App() {
       matterDesc: 'John Smith v. Horizon Logistics Inc. and Does 1-10',
       initiator: 'Cosmos Cortex (auto-intake)',
       status: 'Pending - Review',
-      notes: 'CM-1098467 Summons.pdf, Initial_Demand_Letter.pdf'
+      notes: 'CM-1098467 Summons.pdf, Initial_Demand_Letter.pdf, Security_Footage_Log_v1.xlsx, Witness_Statements_01_to_15.pdf, Medical_Records_Initial_Review.pdf, Site_Inspection_Photos.zip, Defense_Strategy_Memo.docx, Insurance_Policy_Coverage_Analysis.pdf, Deposition_Schedule_Draft.xlsx, Prior_Incidents_Report_2020_2025.pdf, Expert_Witness_Curriculum_Vitae.pdf'
     },
     {
       id: 'CM-1098468',
