@@ -20,3 +20,20 @@
     cursor: pointer !important;
   }
 }
+
+@layer utilities {
+  .hover-scrollbar {
+    overflow-y: auto;
+  }
+  .hover-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    background: transparent;
+  }
+  .hover-scrollbar::-webkit-scrollbar-thumb {
+    background: transparent;
+    border-radius: 10px;
+  }
+  .hover-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+  }
+}
