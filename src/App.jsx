@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import AppV1 from './AppV1';
 import AppV2 from './AppV2';
+import AppV3 from './AppV3';
+import VersionSwitcher from './VersionSwitcher';
 
 function App() {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -21,39 +23,66 @@ function App() {
     setCurrentPath(path);
   };
 
-  // Check if path ends with /v1 or /v2
   if (currentPath.toLowerCase().endsWith('/v1')) {
-    return <AppV1 />;
+    return (
+      <>
+        <VersionSwitcher currentPath={currentPath} navigate={navigate} />
+        <AppV1 />
+      </>
+    );
   }
-  
+
   if (currentPath.toLowerCase().endsWith('/v2')) {
-    return <AppV2 />;
+    return (
+      <>
+        <VersionSwitcher currentPath={currentPath} navigate={navigate} />
+        <AppV2 />
+      </>
+    );
+  }
+
+  if (currentPath.toLowerCase().endsWith('/v3')) {
+    return (
+      <>
+        <VersionSwitcher currentPath={currentPath} navigate={navigate} />
+        <AppV3 />
+      </>
+    );
   }
 
   // Default Home Page for the root url
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-[#0B1C38] text-white font-sans p-6">
-      <div className="max-w-md w-full bg-white/5 p-8 rounded-2xl border border-white/10 backdrop-blur-sm text-center shadow-2xl">
-        <h1 className="text-3xl font-extrabold mb-2">CosmosHelios - Intake</h1>
-        <p className="text-gray-400 mb-8 text-sm">Select a prototype version to view</p>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-zinc-50 text-slate-800 font-sans p-6">
+      <div className="max-w-md w-full bg-white p-8 rounded-2xl border border-slate-200 text-center shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
+        <h1 className="text-3xl font-extrabold mb-2 text-slate-900">CosmosHelios - Intake</h1>
+        <p className="text-slate-500 mb-8 text-sm">Select a corporate design theme</p>
         
         <div className="flex flex-col gap-4">
           <a 
             href="./v1"
             onClick={(e) => navigate(e, './v1')}
-            className="w-full px-6 py-4 bg-white text-[#0B1C38] rounded-xl font-bold hover:bg-gray-100 transition-all shadow-md flex items-center justify-between group"
+            className="w-full px-6 py-4 bg-slate-900 text-white rounded-xl font-bold hover:bg-slate-800 transition-all shadow-md flex items-center justify-between group"
           >
-            <span>Version 1 (Original Grid)</span>
-            <span className="text-gray-400 group-hover:translate-x-1 transition-transform">→</span>
+            <span>V1: Slate & Sapphire</span>
+            <span className="text-blue-400 group-hover:translate-x-1 transition-transform">→</span>
           </a>
           <a 
             href="./v2"
             onClick={(e) => navigate(e, './v2')}
-            className="w-full px-6 py-4 bg-[#C9A456] text-[#0B1C38] rounded-xl font-bold hover:bg-[#b08b3e] transition-all shadow-md flex items-center justify-between group"
+            className="w-full px-6 py-4 bg-emerald-900 text-white rounded-xl font-bold hover:bg-emerald-800 transition-all shadow-md flex items-center justify-between group"
           >
-            <span>Version 2 (Split Pane)</span>
-            <span className="text-[#0B1C38]/50 group-hover:translate-x-1 transition-transform">→</span>
+            <span>V2: Forest & Stone</span>
+            <span className="text-stone-400 group-hover:translate-x-1 transition-transform">→</span>
           </a>
+          <a 
+            href="./v3"
+            onClick={(e) => navigate(e, './v3')}
+            className="w-full px-6 py-4 bg-zinc-900 text-white rounded-xl font-bold hover:bg-zinc-800 transition-all shadow-md flex items-center justify-between group"
+          >
+            <span>V3: Charcoal & Amethyst</span>
+            <span className="text-violet-400 group-hover:translate-x-1 transition-transform">→</span>
+          </a>
+
         </div>
       </div>
     </div>

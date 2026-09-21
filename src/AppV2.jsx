@@ -5,36 +5,44 @@ import {
   Database, 
   FileText, 
   CheckCircle,
+  Check,
   Clock,
   ShieldAlert,
   Info,
-  Search,
+  Eye,
+  X,
   AlertTriangle,
+  ChevronLeft,
   ChevronRight,
   Trash2,
   Hash,
   Scale,
   LayoutGrid,
-  List,
-  Filter,
-  MoreVertical,
-  User,
-  Activity,
-  ArrowRight,
-  FileCheck,
-  Settings,
-  LogOut
+  List
 } from 'lucide-react';
 
 function App() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState("All");
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState(() => 
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'card' : 'grid'
+  );
+  
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setViewMode('card');
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const pendingIntakes = 12;
-
+  const rowsPerPage = 10;
+  
+  const pendingIntakes = 12; // Placeholder
+  
   const steps = [
     { label: 'Email in', completed: true },
     { label: 'Intake', completed: true },
@@ -67,7 +75,7 @@ function App() {
       riskLevel: 'Medium',
       jurisdiction: 'SDNY Federal',
       leadPartner: 'A. Patel',
-      description: 'Smith v. Horizon Logistics (breach of contract). This case involves a slip and fall incident that occurred on the premises during a heavily catered corporate event. The plaintiff alleges severe negligence regarding wet floors in the main lobby, citing failure to place adequate warning signage. Furthermore, the defense argues that the plaintiff was in a restricted area clearly marked as "Employees Only". The discovery phase has uncovered over 4,000 pages of security footage, incident reports, and witness testimonies. We need to conduct a thorough deposition schedule over the next three months. This matter requires immediate attention due to the high profile nature of the defendant and potential media coverage.',
+      description: 'Smith v. Horizon Logistics (breach of contract)',
       initiated: 'June 29, 2026 2:15 PM',
       type: 'New Matter Intake',
       client: 'Horizon Logistics Inc.',
@@ -75,7 +83,7 @@ function App() {
       matterDesc: 'John Smith v. Horizon Logistics Inc. and Does 1-10',
       initiator: 'Cosmos Cortex (auto-intake)',
       status: 'Pending - Review',
-      notes: 'CM-1098467 Summons.pdf, Initial_Demand_Letter.pdf, Security_Footage_Log_v1.xlsx, Witness_Statements_01_to_15.pdf, Medical_Records_Initial_Review.pdf, Site_Inspection_Photos.zip, Defense_Strategy_Memo.docx, Insurance_Policy_Coverage_Analysis.pdf, Deposition_Schedule_Draft.xlsx, Prior_Incidents_Report_2020_2025.pdf, Expert_Witness_Curriculum_Vitae.pdf'
+      notes: 'CM-1098467 Summons.pdf, Initial_Demand_Letter.pdf'
     },
     {
       id: 'CM-1098468',
@@ -204,505 +212,561 @@ function App() {
       initiator: 'System Admin',
       status: 'Completed',
       notes: 'Roster_July2026.csv'
+    },
+    {
+      id: 'CM-1098476',
+      tag: 'Real Filing',
+      riskLevel: 'Medium',
+      jurisdiction: 'TX Dist. Dallas Cty',
+      leadPartner: 'M. Chen',
+      description: 'Bright Future Inc. (employment discrimination)',
+      initiated: 'July 5, 2026 8:45 AM',
+      type: 'New Client/Matter Intake',
+      client: 'Bright Future Inc.',
+      matterNum: '0',
+      matterDesc: 'Sarah Jenkins v. Bright Future Inc.',
+      initiator: 'Cosmos Cortex (auto-intake)',
+      status: 'Draft - Intake',
+      notes: 'CM-1098476 EEOC_Charge.pdf'
+    },
+    {
+      id: 'CM-1098477',
+      tag: 'Live Conflict Search',
+      riskLevel: 'High',
+      jurisdiction: 'SDNY Federal',
+      leadPartner: 'A. Patel',
+      description: 'Omega Financial (SEC investigation)',
+      initiated: 'July 5, 2026 10:20 AM',
+      type: 'New Matter Intake (RUSH)',
+      client: 'Omega Financial Group',
+      matterNum: '0',
+      matterDesc: 'SEC Inquiry into Omega Financial Group Q1 Trading',
+      initiator: 'John Smith',
+      status: 'Pending - Review',
+      notes: 'CM-1098477 SEC_Subpoena.pdf'
+    },
+    {
+      id: 'CM-1098478',
+      tag: 'Real Filing',
+      riskLevel: 'Low',
+      jurisdiction: 'FL Circuit - Tampa',
+      leadPartner: 'R. Simmons',
+      description: 'Gulf Coast Realty (contract dispute)',
+      initiated: 'July 6, 2026 2:10 PM',
+      type: 'New Matter Intake',
+      client: 'Gulf Coast Realty Advisors',
+      matterNum: '0',
+      matterDesc: 'Gulf Coast Realty v. Sunstate Builders',
+      initiator: 'Jane Doe',
+      status: 'Approved',
+      notes: 'CM-1098478 Commercial_Lease_Dispute.pdf'
+    },
+    {
+      id: 'CM-1098479',
+      tag: 'Live Conflict Search',
+      riskLevel: 'Medium',
+      jurisdiction: 'WA Superior - King',
+      leadPartner: 'T. Jefferson',
+      description: 'CloudNet (data breach class action)',
+      initiated: 'July 7, 2026 9:15 AM',
+      type: 'New Client Intake',
+      client: 'CloudNet Systems',
+      matterNum: '0',
+      matterDesc: 'Consumer Class Action re Data Breach',
+      initiator: 'Cosmos Cortex (auto-intake)',
+      status: 'Draft - Intake',
+      notes: 'CM-1098479 Class_Action_Complaint.pdf'
+    },
+    {
+      id: 'CM-1098480',
+      tag: 'Real Filing',
+      riskLevel: 'High',
+      jurisdiction: 'CA Superior - SF',
+      leadPartner: 'S. Goldberg',
+      description: 'BioTech Solutions (trade secret theft)',
+      initiated: 'July 7, 2026 4:00 PM',
+      type: 'New Matter Intake (RUSH)',
+      client: 'BioTech Solutions',
+      matterNum: '0',
+      matterDesc: 'BioTech Solutions v. Former Employees',
+      initiator: 'Alice Johnson',
+      status: 'Conflict Check',
+      notes: 'CM-1098480 TRO_Application.pdf'
     }
   ];
 
   const [data, setData] = useState(initialTableData);
 
-  const filteredData = data.filter(item => {
-    const matchesSearch = item.client.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                          item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = activeFilter === 'All' ? true : item.tag === activeFilter;
-    return matchesSearch && matchesFilter;
-  });
+  const visibleColumns = [
+    'Workflow ID', 'Client', 'Description', 'Initiated', 'Status', 
+    'Open / Intake', 'Intake Summary', 'Conflict Analysis', 'Action'
+  ];
+
+  // Pagination Logic
+  const totalPages = Math.ceil(data.length / rowsPerPage) || 1;
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const currentTableData = data.slice(startIndex, startIndex + rowsPerPage);
+
+  const handlePrevPage = () => setCurrentPage(p => Math.max(1, p - 1));
+  const handleNextPage = () => setCurrentPage(p => Math.min(totalPages, p + 1));
 
   const handleDeleteConfirm = () => {
     setData(data.filter(item => item.id !== rowToDelete.id));
-    if (selectedRow?.id === rowToDelete.id) {
-      setSelectedRow(null);
-    }
     setRowToDelete(null);
-  };
-
-  const getRiskColor = (level) => {
-    switch(level) {
-      case 'High': return 'bg-red-500';
-      case 'Medium': return 'bg-amber-500';
-      case 'Low': return 'bg-emerald-500';
-      default: return 'bg-gray-400';
+    
+    // Adjust page if we deleted the last item on the current page
+    if (currentTableData.length === 1 && currentPage > 1) {
+      setCurrentPage(p => p - 1);
     }
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#f4f7f9] overflow-hidden font-sans text-brand-navy selection:bg-brand-gold/30">
+    <div className="h-screen flex bg-gray-50 font-sans text-black overflow-hidden">
       
-      {/* Sidebar Navigation */}
-      <aside className="w-16 lg:w-[220px] bg-brand-navy text-white flex flex-col items-center lg:items-stretch py-5 transition-all duration-300 shadow-xl z-20 shrink-0 border-r border-white/5">
-        <div className="flex items-center gap-3 px-0 lg:px-6 mb-8 w-full justify-center lg:justify-start">
-          <div className="bg-gradient-to-br from-brand-gold to-yellow-600 p-2 rounded-lg shadow-lg shadow-brand-gold/20 flex-shrink-0">
-            <Inbox className="text-brand-navy" size={20} strokeWidth={2.5} />
-          </div>
-          <h1 className="text-lg font-bold text-white tracking-wide hidden lg:block">
-            CosmosHelios<span className="font-light text-brand-gold"> - Intake</span>
-          </h1>
-        </div>
-
-        <nav className="flex-1 w-full space-y-2 px-3">
-          <NavItem icon={<Inbox size={20} />} label="Inbox" badge={pendingIntakes} active />
-          <NavItem icon={<Activity size={20} />} label="Active Workflows" />
-          <NavItem icon={<FileCheck size={20} />} label="Approvals" />
-          <NavItem icon={<ShieldAlert size={20} />} label="Conflicts" />
-          <NavItem icon={<Database size={20} />} label="Firm Data" />
-        </nav>
-
-        <div className="px-3 w-full mt-auto relative">
-          
-          {/* User Menu Popover */}
-          {showUserMenu && (
-            <div className="absolute bottom-full left-3 right-3 mb-2 bg-[#1a2f4c] border border-white/10 rounded-xl shadow-2xl py-1 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
-              <button 
-                onClick={() => setShowUserMenu(false)}
-                className="w-full text-left px-4 py-2.5 text-sm text-gray-200 hover:bg-brand-gold/10 hover:text-white transition-colors flex items-center gap-3"
-              >
-                <User size={16} className="text-brand-gold" />
-                My Profile
-              </button>
-              <button 
-                onClick={() => setShowUserMenu(false)}
-                className="w-full text-left px-4 py-2.5 text-sm text-gray-200 hover:bg-brand-gold/10 hover:text-white transition-colors flex items-center gap-3"
-              >
-                <Settings size={16} className="text-gray-400" />
-                Setting
-              </button>
-              <div className="h-px bg-white/10 my-1 mx-2"></div>
-              <button 
-                onClick={() => setShowUserMenu(false)}
-                className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors flex items-center gap-3"
-              >
-                <LogOut size={16} />
-                Logout
-              </button>
-            </div>
-          )}
-
-          <div 
-            onClick={() => setShowUserMenu(!showUserMenu)}
-            className={`bg-[#13243b] rounded-xl p-3 flex flex-col items-center lg:items-start gap-2 shadow-inner cursor-pointer transition-all duration-200 border
-              ${showUserMenu ? 'border-brand-gold/50 bg-[#1a2f4c]' : 'border-white/5 hover:border-white/20'}`}
-          >
-            <div className="flex items-center gap-2 w-full">
-              <div className="w-8 h-8 rounded-full bg-brand-gold/20 flex items-center justify-center text-brand-gold shrink-0">
-                <User size={16} />
-              </div>
-              <div className="hidden lg:block overflow-hidden flex-1">
-                <p className="text-xs font-bold text-white truncate">J. Harrison</p>
-                <p className="text-[10px] text-gray-400 truncate">Partner</p>
-              </div>
-              <ChevronRight size={14} className={`hidden lg:block shrink-0 text-gray-500 transition-transform duration-200 ${showUserMenu ? '-rotate-90 text-brand-gold' : ''}`} />
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative">
+      {/* Left Sidebar */}
+      <aside className="w-72 bg-blue-900 text-white flex flex-col shrink-0 shadow-xl z-20 overflow-y-auto">
         
-        {/* Top Header */}
-        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200 flex items-center justify-between px-6 shrink-0 z-10 sticky top-0">
-          <div className="flex items-center gap-4">
-            <h2 className="text-lg font-extrabold text-brand-navy hidden sm:block">Workflow Inbox</h2>
-            <div className="h-5 w-px bg-gray-300 hidden sm:block"></div>
-            <span className="text-[10px] font-bold tracking-widest uppercase text-brand-gold border border-brand-gold/40 px-2.5 py-1 rounded-full bg-brand-gold/5">
+        {/* Branding */}
+        <div className="p-6 pb-4 border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="bg-blue-950 p-1.5 rounded">
+              <Inbox className="text-blue-200" size={20} />
+            </div>
+            <h1 className="text-xl font-bold text-white tracking-wide">
+              Cosmos<span className="font-light text-blue-200">Intake</span>
+            </h1>
+          </div>
+          <div className="flex flex-col gap-2 mt-4">
+            <span className="text-[10px] font-bold tracking-widest uppercase text-blue-200 border border-blue-200/40 px-2.5 py-1 rounded-sm bg-blue-950 shadow-inner text-center w-max">
               Demo v3.10
             </span>
           </div>
+        </div>
 
-          <div className="flex items-center gap-4">
-            <div className="relative group hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-brand-gold transition-colors" size={16} />
-              <input 
-                type="text" 
-                placeholder="Search clients, matters, IDs..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 w-64 lg:w-80 bg-gray-100 border-transparent focus:bg-white border focus:border-brand-gold/50 rounded-full text-sm outline-none transition-all shadow-sm focus:shadow-md"
-              />
-            </div>
-            
-            <div className="flex gap-2">
-              <label className="bg-white hover:bg-gray-50 text-brand-navy font-semibold py-2 px-4 rounded-full flex items-center gap-2 transition-all shadow-sm border border-gray-200 cursor-pointer text-sm group">
-                <input type="file" className="hidden" accept=".csv,.xlsx" />
-                <Database size={16} className="text-brand-navy group-hover:-translate-y-0.5 transition-transform" />
-                <span className="hidden sm:inline">Load Aderant Book</span>
-              </label>
-              <button className="bg-brand-navy hover:bg-[#08152b] text-white font-semibold py-2 px-4 rounded-full flex items-center gap-2 transition-all shadow-md shadow-brand-navy/20 hover:shadow-lg text-sm group">
-                <Upload size={16} className="group-hover:-translate-y-0.5 transition-transform" />
-                <span className="hidden sm:inline">New Intake</span>
-              </button>
-            </div>
+        {/* Workflow Stepper - Vertical */}
+        <div className="p-6 border-b border-white/10 shrink-0 flex-1">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wider">Workflow</h2>
+            <span className="bg-blue-200/10 text-blue-200 border border-blue-200/20 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+              {pendingIntakes} Pending
+            </span>
           </div>
-        </header>
-
-        {/* Master-Detail Split View */}
-        <div className="flex-1 flex overflow-hidden">
           
-          {/* LEFT PANE: Master List */}
-          <div className={`
-            ${selectedRow ? 'hidden lg:flex' : 'flex'} 
-            w-full lg:w-[400px] xl:w-[450px] flex-col bg-white border-r border-gray-200 z-10 shrink-0
-          `}>
-            
-            {/* List Header & Filters */}
-            <div className="p-4 border-b border-gray-100 bg-gray-50/50 shrink-0 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">{filteredData.length} items found</span>
-                <button className="text-gray-400 hover:text-brand-navy p-1 transition-colors">
-                  <Filter size={16} />
-                </button>
-              </div>
-              
-              <div className="flex gap-2 overflow-x-auto pb-1 hide-scrollbar">
-                {['All', 'Real Filing', 'Live Conflict Search', 'Firm Book Load'].map(filter => (
-                  <button 
-                    key={filter}
-                    onClick={() => setActiveFilter(filter)}
-                    className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-bold transition-all
-                      ${activeFilter === filter 
-                        ? 'bg-brand-navy text-white shadow-sm' 
-                        : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300'}`}
-                  >
-                    {filter}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* List Items */}
-            <div className="flex-1 hover-scrollbar bg-gray-50/30">
-              {filteredData.length > 0 ? filteredData.map((row) => (
-                <div 
-                  key={row.id}
-                  onClick={() => setSelectedRow(row)}
-                  className={`
-                    p-4 border-b border-gray-100 cursor-pointer transition-all duration-200 group relative
-                    ${selectedRow?.id === row.id 
-                      ? 'bg-brand-gold/5 border-l-4 border-l-brand-gold' 
-                      : 'bg-white hover:bg-gray-50 border-l-4 border-l-transparent'}
-                  `}
+          <div className="flex flex-col gap-4 relative">
+            <div className="absolute left-[11px] top-4 bottom-4 w-px bg-white/10 z-0"></div>
+            {steps.map((step, index) => (
+              <div key={index} className="flex items-center gap-4 relative z-10">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 text-[10px] font-bold transition-colors shadow-sm
+                  ${step.completed ? 'border-blue-400 text-blue-400 bg-blue-900' : 
+                    step.current ? 'border-blue-500 bg-blue-500 text-white shadow-blue-500/30' : 
+                    'border-zinc-500 text-zinc-400 bg-blue-950'}`}
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <span className="text-[10px] font-black font-mono text-gray-500 bg-gray-100 px-1.5 py-0.5 rounded group-hover:bg-gray-200 transition-colors">{row.id}</span>
-                    <span className="text-[10px] text-gray-400 flex items-center gap-1 font-medium"><Clock size={10}/> {row.initiated.split(' ')[0]}</span>
-                  </div>
-                  
-                  <h3 className={`font-extrabold text-sm mb-1 ${selectedRow?.id === row.id ? 'text-brand-gold' : 'text-brand-navy'}`}>
-                    {row.client}
-                  </h3>
-                  
-                  <p className="text-xs text-gray-600 line-clamp-2 mb-3 leading-relaxed">
-                    {row.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full shadow-sm ${getRiskColor(row.riskLevel)}`} title={`Risk: ${row.riskLevel}`}></div>
-                      {row.tag && (
-                        <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border bg-white shadow-sm ${
-                          row.tag === 'Real Filing' ? 'text-[#b08b3e] border-[#C9A456]/30' :
-                          row.tag === 'Live Conflict Search' ? 'text-red-600 border-red-200' :
-                          'text-[#13243b] border-[#13243b]/20'
-                        }`}>
-                          {row.tag}
-                        </span>
-                      )}
-                    </div>
-                    <ChevronRight size={16} className={`transition-transform duration-300 ${selectedRow?.id === row.id ? 'text-brand-gold translate-x-1' : 'text-gray-300 group-hover:text-gray-500'}`} />
-                  </div>
+                  {step.completed ? <Check size={14} strokeWidth={3} /> : index + 1}
                 </div>
-              )) : (
-                <div className="p-8 text-center text-gray-500 flex flex-col items-center">
-                  <Inbox size={32} className="text-gray-300 mb-3" />
-                  <p className="text-sm font-medium">No records match your filters.</p>
-                </div>
-              )}
+                <span className={`text-xs font-semibold uppercase tracking-wide
+                  ${step.completed || step.current ? 'text-white' : 'text-zinc-400'}`}>
+                  {step.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Sidebar Actions */}
+        <div className="p-6 shrink-0 flex flex-col gap-3">
+          <button className="w-full bg-white hover:bg-gray-100 text-blue-900 font-bold py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-all text-sm shadow-sm">
+            <Upload size={16} className="text-blue-600" />
+            New Intake
+          </button>
+          <label className="w-full bg-blue-950 hover:bg-[#1a304e] border border-white/10 text-white font-bold py-2.5 px-4 rounded-lg flex items-center justify-center gap-2 transition-all text-sm cursor-pointer shadow-sm">
+            <input type="file" className="hidden" accept=".csv,.xlsx" />
+            <Database size={16} className="text-white" />
+            Load Aderant Book
+          </label>
+        </div>
+      </aside>
+
+      {/* Main Content Area */}
+      <main className="flex-1 flex flex-col min-w-0 overflow-y-auto bg-gray-100 p-6">
+
+
+        {/* Top Header inside Main Content */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col md:flex-row items-start md:items-center justify-between p-4 mb-6 shrink-0 gap-4">
+          <div className="flex items-center gap-4">
+            <div className="bg-blue-900 text-white px-3 py-1.5 rounded-lg border border-blue-600/30 shadow-sm flex items-center gap-2">
+              <Database size={14} className="text-white"/>
+              <span className="text-xs font-bold tracking-wide">DATA SOURCES</span>
+            </div>
+            
+            <div className="flex items-center gap-4 text-xs font-medium">
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                <span className="text-gray-600">Real Filing</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-blue-800"></div>
+                <span className="text-gray-600">Live Conflict Search</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-blue-600"></div>
+                <span className="text-gray-600">Firm Book</span>
+              </div>
             </div>
           </div>
+          
+          <div className="flex items-center gap-3">
+             <span className="text-[10px] font-bold tracking-widest uppercase text-white bg-red-900/80 px-2.5 py-1 rounded shadow-sm flex items-center gap-1">
+                <AlertTriangle size={10} className="text-blue-600" />
+                Confidential
+             </span>
+          </div>
+        </div>
 
-          {/* RIGHT PANE: Detail View */}
-          <div className={`
-            ${!selectedRow ? 'hidden lg:flex' : 'flex'} 
-            flex-1 bg-gradient-to-br from-[#f8f9fa] to-white flex-col overflow-y-auto relative
-          `}>
-            
-            {selectedRow ? (
-              <div className="animate-in fade-in slide-in-from-right-8 duration-300 pb-12">
-                
-                {/* Mobile Back Button */}
-                <div className="lg:hidden p-4 border-b border-gray-200 bg-white sticky top-0 z-20 flex justify-between items-center shadow-sm">
-                  <button 
-                    onClick={() => setSelectedRow(null)}
-                    className="flex items-center gap-1 text-brand-navy font-bold text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-full transition-colors"
-                  >
-                    <ChevronRight className="rotate-180" size={16} /> Back to Inbox
-                  </button>
-                  <div className="flex gap-2">
-                    <button onClick={() => setRowToDelete(selectedRow)} className="p-2 text-red-500 bg-red-50 rounded-full hover:bg-red-100"><Trash2 size={16}/></button>
-                  </div>
-                </div>
-
-                {/* Detail Header Hero */}
-                <div className="bg-brand-navy text-white px-8 py-10 relative overflow-hidden shrink-0">
-                  {/* Decorative BG element */}
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-brand-gold/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-                  
-                  <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-                    <div className="max-w-2xl">
-                      <div className="flex items-center gap-3 mb-4">
-                        <span className="text-xs font-black font-mono text-brand-navy bg-brand-gold px-2 py-1 rounded shadow-sm">
-                          {selectedRow.id}
+        {/* Grid/Card Container */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col mb-6">
+          <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50 shrink-0 rounded-t-xl">
+            <div className="flex items-center gap-3">
+              <h2 className="text-sm font-bold text-blue-900 uppercase tracking-wider">Intake Pipeline Data</h2>
+            </div>
+            <div className="flex bg-gray-200/60 rounded-lg p-1">
+               <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-blue-900' : 'text-gray-500 hover:text-gray-700'}`} title="Table View"><List size={16} /></button>
+               <button onClick={() => setViewMode('card')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'card' ? 'bg-white shadow-sm text-blue-900' : 'text-gray-500 hover:text-gray-700'}`} title="Card View"><LayoutGrid size={16} /></button>
+            </div>
+          </div>
+          
+          <div className="overflow-x-auto">
+            {viewMode === 'grid' ? (
+            <table className="w-full text-left border-collapse">
+              <thead className="sticky top-0 z-20 bg-gray-50 shadow-sm border-b border-gray-200">
+                <tr>
+                  {visibleColumns.map((col, idx) => (
+                    <th key={idx} className={`p-3 text-xs font-bold uppercase tracking-wider text-gray-500 whitespace-nowrap bg-gray-50 ${col === 'Action' ? 'sticky right-0 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.1)] z-30' : ''}`}>
+                      {col}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {currentTableData.length > 0 ? currentTableData.map((row) => (
+                  <tr key={row.id} className="border-b border-gray-100 hover:bg-blue-50/30 transition-colors">
+                    <td className="p-3 text-sm font-semibold text-blue-900 whitespace-nowrap">
+                      {row.id}
+                    </td>
+                    <td className="p-3 text-sm text-black font-medium whitespace-nowrap">{row.client}</td>
+                    <td className="p-3">
+                      <div className="flex flex-col items-start gap-1.5">
+                        <span className="text-sm text-black max-w-[250px] truncate" title={row.description}>
+                          {row.description}
                         </span>
-                      </div>
-                      
-                      <h2 className="text-3xl font-extrabold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">
-                        {selectedRow.client}
-                      </h2>
-                      <p className="text-gray-300 font-medium text-sm lg:text-base flex items-center gap-2">
-                        <Scale size={16} className="text-brand-gold"/> 
-                        {selectedRow.matterDesc}
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-3 w-full md:w-auto flex-wrap">
-                      <button className="flex-1 md:flex-none bg-white text-brand-navy hover:bg-brand-gold hover:text-white transition-all shadow-lg font-bold py-2.5 px-5 rounded-lg flex items-center justify-center gap-2 text-sm">
-                        <FileText size={16} /> Open Intake
-                      </button>
-                      <button className="flex-1 md:flex-none bg-white/10 text-white hover:bg-white/20 transition-all font-bold py-2.5 px-5 rounded-lg flex items-center justify-center gap-2 text-sm border border-white/20">
-                        <FileCheck size={16} /> Intake Summary
-                      </button>
-                      <button 
-                        onClick={() => setRowToDelete(selectedRow)} 
-                        className="hidden lg:flex p-2.5 text-gray-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors border border-transparent hover:border-red-400/20" 
-                        title="Delete Record"
-                      >
-                        <Trash2 size={20} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Workflow Stepper */}
-                <div className="px-8 -mt-6 relative z-20">
-                  <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-4 md:p-5 flex items-center justify-between gap-2 xl:gap-4 overflow-hidden">
-                    {steps.map((step, index) => (
-                      <div key={index} className={`flex items-center ${index < steps.length - 1 ? 'flex-1' : 'shrink-0'}`}>
-                        <div className={`w-7 h-7 md:w-8 md:h-8 rounded-full shrink-0 flex items-center justify-center border-2 text-[10px] md:text-xs font-bold z-10 transition-all duration-300
-                          ${step.completed ? 'border-brand-gold bg-brand-gold text-white shadow-md' : 
-                            step.current ? 'border-brand-navy bg-brand-navy text-white shadow-lg shadow-brand-navy/20 scale-110' : 
-                            'border-gray-200 text-gray-400 bg-gray-50'}`}
-                        >
-                          {step.completed ? <CheckCircle size={14} /> : index + 1}
-                        </div>
-                        <span className={`text-[9px] xl:text-xs font-bold ml-2 xl:ml-3 uppercase tracking-wide hidden md:block whitespace-nowrap
-                          ${step.completed ? 'text-brand-gold' : 
-                            step.current ? 'text-brand-navy' : 'text-gray-400'}`}>
-                          {step.label}
-                        </span>
-                        {index < steps.length - 1 && (
-                          <div className={`flex-1 h-0.5 ml-2 xl:ml-3 min-w-[10px]
-                            ${step.completed ? 'bg-brand-gold/50' : 'bg-gray-100'}`} 
-                          />
+                        {row.tag && (
+                          <span 
+                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-help shadow-sm ${
+                              row.tag === 'Real Filing' ? 'bg-blue-600/10 text-blue-400 border-blue-600/30' :
+                              row.tag === 'Live Conflict Search' ? 'bg-blue-800/10 text-blue-800 border-blue-800/30' :
+                              'bg-blue-950/5 text-blue-400 border-blue-400/20'
+                            }`}
+                            title={
+                              row.tag === 'Real Filing' ? 'Verified public court documents' :
+                              row.tag === 'Live Conflict Search' ? '491 history records scanned' :
+                              row.tag === 'Firm Book Load' ? 'CS&K Aderant extract' :
+                              'Internal system automation'
+                            }
+                          >
+                            {row.tag}
+                          </span>
                         )}
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Detailed Info Grid */}
-                <div className="p-8 grid grid-cols-1 xl:grid-cols-3 gap-8">
-                  
-                  {/* Left Column - Details */}
-                  <div className="xl:col-span-2 space-y-8">
-                    
-                    <section>
-                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <Info size={16}/> Matter Information
-                      </h3>
-                      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 grid grid-cols-1 md:grid-cols-2 gap-6 relative overflow-hidden">
-                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 pb-4 border-b border-gray-50">
-                          <div>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Status</p>
-                            <p className="text-sm font-bold text-brand-navy bg-brand-gold/10 px-3 py-1.5 rounded-lg inline-block border border-brand-gold/20">{selectedRow.status}</p>
-                          </div>
-                          <div>
-                            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Type</p>
-                            <p className="text-sm font-bold text-brand-navy bg-gray-50 px-3 py-1.5 rounded-lg inline-block">{selectedRow.type}</p>
-                          </div>
-                        </div>
-                        <div className="md:col-span-2">
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Description</p>
-                          <p className="text-sm font-medium text-brand-navy">{selectedRow.description}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Jurisdiction</p>
-                          <p className="text-sm font-medium text-brand-navy flex items-center gap-1.5">
-                            <Scale size={14} className="text-gray-400"/> {selectedRow.jurisdiction}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Matter Number</p>
-                          <p className="text-sm font-mono text-gray-600">{selectedRow.matterNum}</p>
-                        </div>
-                      </div>
-                    </section>
-
-                    <section>
-                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <Database size={16}/> Administration & Source
-                      </h3>
-                      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 grid grid-cols-1 md:grid-cols-2 gap-6 relative overflow-hidden">
-                        <div>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Lead Partner</p>
-                          <p className="text-sm font-medium text-brand-navy flex items-center gap-2">
-                            <span className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-brand-navy">
-                              {selectedRow.leadPartner.charAt(0)}
-                            </span>
-                            {selectedRow.leadPartner}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Initiator</p>
-                          <p className="text-sm font-medium text-gray-700">{selectedRow.initiator}</p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Initiated</p>
-                          <p className="text-sm font-medium text-gray-700 flex items-center gap-1.5">
-                            <Clock size={14} className="text-gray-400"/> {selectedRow.initiated}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-1">Data Source</p>
-                          <span className={`inline-block text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-gray-50 border border-gray-200 text-brand-navy shadow-sm`}>
-                            {selectedRow.tag || 'Unknown'}
-                          </span>
-                        </div>
-                      </div>
-                    </section>
-
-                  </div>
-
-                  {/* Right Column - Actions & Docs */}
-                  <div className="space-y-6">
-                    <div className="bg-brand-navy rounded-2xl p-6 text-white shadow-lg relative overflow-hidden group cursor-pointer hover:shadow-xl transition-all">
-                      <div className="absolute right-0 top-0 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-colors"></div>
-                      <ShieldAlert className="text-brand-gold mb-4" size={32} />
-                      <h4 className="text-lg font-bold mb-2">Conflict Analysis</h4>
-                      <p className="text-xs text-gray-300 mb-6 leading-relaxed">Run a comprehensive conflict check across 491 active records and historical data.</p>
-                      <button className="w-full bg-brand-gold hover:bg-yellow-500 text-brand-navy font-bold py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm text-sm">
-                        Run Analysis <ArrowRight size={16} />
+                    </td>
+                    <td className="p-3 text-sm text-black whitespace-nowrap">{row.initiated}</td>
+                    <td className="p-3">
+                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-bold tracking-wide whitespace-nowrap">{row.status}</span>
+                    </td>
+                    <td className="p-3">
+                      <a href="#" className="text-blue-600 hover:text-blue-700 font-semibold text-xs whitespace-nowrap underline underline-offset-2">
+                        Open / Intake
+                      </a>
+                    </td>
+                    <td className="p-3">
+                      <a href="#" className="text-blue-900 hover:text-blue-600 font-semibold text-xs whitespace-nowrap flex items-center gap-1 transition-colors">
+                        <FileText size={14} />
+                        Intake Summary
+                      </a>
+                    </td>
+                    <td className="p-3">
+                      <button className="bg-blue-900 hover:bg-brand-dark text-white text-[11px] uppercase tracking-wide font-bold py-1.5 px-2.5 rounded whitespace-nowrap transition-colors flex items-center gap-1 shadow-sm">
+                        <ShieldAlert size={12} />
+                        Conflict Analysis
                       </button>
+                    </td>
+                    <td className="p-3 sticky right-0 bg-white shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)] border-l border-gray-100 group-hover:bg-blue-50/30">
+                      <div className="flex items-center gap-2 min-w-max">
+                        <button 
+                          onClick={() => setSelectedRow(row)}
+                          className="text-zinc-300 hover:bg-blue-950 hover:text-blue-200 transition-colors flex items-center justify-center p-1.5 rounded"
+                          title="View Details"
+                        >
+                          <Eye size={18} />
+                        </button>
+                        <button 
+                          onClick={() => setRowToDelete(row)}
+                          className="text-blue-800 bg-blue-800/10 hover:bg-blue-800 hover:text-white transition-colors flex items-center justify-center p-1.5 rounded"
+                          title="Delete Record"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={visibleColumns.length} className="p-8 text-center text-gray-500">
+                      No records found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 bg-gray-50/30">
+                {currentTableData.length > 0 ? currentTableData.map((row) => (
+                  <div key={row.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_15px_-4px_rgba(201,164,86,0.15)] transition-all flex flex-col relative group overflow-hidden">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-black font-mono text-blue-900 bg-blue-900/5 px-2 py-0.5 rounded">{row.id}</span>
+                      <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 border border-gray-100">
+                        <button 
+                          onClick={() => setSelectedRow(row)}
+                          className="text-blue-900 hover:bg-blue-900/10 transition-colors p-1.5 rounded"
+                          title="View Details"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button 
+                          onClick={() => setRowToDelete(row)}
+                          className="text-blue-800 hover:bg-blue-800/10 transition-colors p-1.5 rounded"
+                          title="Delete Record"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </div>
-
-                    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                      <h4 className="text-sm font-bold text-brand-navy uppercase tracking-widest mb-4 flex items-center gap-2">
-                        <FileText size={16} className="text-gray-400"/> Attached Documents
-                      </h4>
-                      <div className="space-y-3">
-                        {selectedRow.notes.split(',').map((note, idx) => (
-                          <div key={idx} className="flex items-center gap-3 p-3 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-gray-50 hover:border-gray-200 transition-colors cursor-pointer group">
-                            <div className="bg-white p-2 rounded shadow-sm border border-gray-100 group-hover:border-brand-gold/30 transition-colors">
-                              <FileText size={16} className="text-brand-navy" />
-                            </div>
-                            <span className="text-xs font-medium text-brand-navy truncate flex-1" title={note.trim()}>{note.trim()}</span>
-                          </div>
-                        ))}
+                    
+                    <h3 className="font-extrabold text-gray-900 text-base mb-1">{row.client}</h3>
+                    <p className="text-sm text-gray-600 line-clamp-2 mb-3 flex-1">{row.description}</p>
+                    
+                    {row.tag && (
+                      <div className="mb-4">
+                        <span 
+                          className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-help shadow-sm ${
+                            row.tag === 'Real Filing' ? 'bg-blue-600/10 text-blue-400 border-blue-600/30' :
+                            row.tag === 'Live Conflict Search' ? 'bg-blue-800/10 text-blue-800 border-blue-800/30' :
+                            'bg-blue-950/5 text-blue-400 border-blue-400/20'
+                          }`}
+                        >
+                          {row.tag}
+                        </span>
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-col gap-3 mt-auto pt-3 border-t border-gray-100">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[11px] text-gray-500 flex items-center gap-1 font-medium"><Clock size={12}/> {row.initiated}</span>
+                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md text-[10px] font-bold tracking-wide uppercase">{row.status}</span>
+                      </div>
+                      
+                      <div className="flex justify-between items-center mt-1">
+                        <a href="#" className="text-blue-600 hover:text-blue-700 font-semibold text-xs underline underline-offset-2">Open / Intake</a>
+                        <div className="flex gap-2">
+                           <button className="bg-gray-100 hover:bg-gray-200 text-blue-900 p-1.5 rounded transition-colors" title="Intake Summary">
+                             <FileText size={14} />
+                           </button>
+                           <button className="bg-blue-900 hover:bg-[#08152b] text-white p-1.5 rounded transition-colors shadow-sm" title="Conflict Analysis">
+                             <ShieldAlert size={14} />
+                           </button>
+                        </div>
                       </div>
                     </div>
                   </div>
-
-                </div>
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-gray-50/30">
-                <div className="w-24 h-24 bg-white rounded-full shadow-sm border border-gray-100 flex items-center justify-center mb-6">
-                  <Inbox size={40} className="text-brand-gold/40" />
-                </div>
-                <h3 className="text-xl font-bold text-brand-navy mb-2">No Intake Selected</h3>
-                <p className="text-sm text-gray-500 max-w-sm leading-relaxed">
-                  Select an item from the inbox list to view detailed information, run conflict analysis, and progress the workflow.
-                </p>
+                )) : (
+                  <div className="col-span-full p-8 text-center text-gray-500">
+                    No records found.
+                  </div>
+                )}
               </div>
             )}
           </div>
+
+          {/* Pagination Controls */}
+          {data.length > 0 && (
+            <div className="flex items-center justify-between p-4 border-t border-gray-200 bg-white shrink-0 rounded-b-xl">
+              <div className="text-sm text-gray-500">
+                Showing <span className="font-semibold text-blue-900">{startIndex + 1}</span> to <span className="font-semibold text-blue-900">{Math.min(startIndex + rowsPerPage, data.length)}</span> of <span className="font-semibold text-blue-900">{data.length}</span> entries
+              </div>
+              <div className="flex items-center gap-1 border border-gray-300 rounded-md overflow-hidden shadow-sm">
+                <button 
+                  onClick={handlePrevPage}
+                  disabled={currentPage === 1}
+                  className="p-1.5 bg-white text-gray-600 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-r border-gray-300"
+                >
+                  <ChevronLeft size={18} />
+                </button>
+                
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`w-8 h-8 flex items-center justify-center text-sm font-bold transition-colors
+                      ${currentPage === page ? 'bg-blue-600 text-white' : 'bg-white text-blue-900 hover:bg-gray-50 border-r border-gray-300'}`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                
+                <button 
+                  onClick={handleNextPage}
+                  disabled={currentPage === totalPages}
+                  className="p-1.5 bg-white text-gray-600 hover:bg-gray-50 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                >
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       </main>
 
-      {/* Delete Modal Overlay */}
+      {/* Delete Confirmation Modal */}
       {rowToDelete && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-brand-navy/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-blue-900/60 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
             <div className="p-6 flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mb-5 ring-8 ring-red-50/50">
-                <AlertTriangle size={32} />
+              <div className="w-14 h-14 bg-blue-800/20 text-blue-800 rounded-full flex items-center justify-center mb-4">
+                <AlertTriangle size={28} />
               </div>
-              <h3 className="text-xl font-bold text-brand-navy mb-2">Delete Record?</h3>
-              <p className="text-gray-600 text-sm mb-8 leading-relaxed">
-                You are about to permanently delete <span className="font-bold text-brand-navy px-1 bg-gray-100 rounded">{rowToDelete.id}</span>. This action cannot be undone.
+              <h3 className="text-xl font-bold text-blue-900 mb-2">Delete Record?</h3>
+              <p className="text-gray-600 text-sm mb-6 leading-relaxed">
+                Are you sure you want to delete <span className="font-bold text-black">{rowToDelete.id}</span>? This action is permanent and cannot be undone.
               </p>
               <div className="flex gap-3 w-full">
                 <button 
                   onClick={() => setRowToDelete(null)}
-                  className="flex-1 px-4 py-3 text-gray-600 font-bold bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors text-sm"
+                  className="flex-1 px-4 py-2.5 text-blue-900 font-bold bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleDeleteConfirm}
-                  className="flex-1 px-4 py-3 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors shadow-sm shadow-red-600/20 text-sm"
+                  className="flex-1 px-4 py-2.5 bg-blue-800 text-white font-bold rounded-lg hover:bg-blue-900 transition-colors shadow-sm"
                 >
-                  Confirm Delete
+                  Delete
                 </button>
               </div>
             </div>
           </div>
         </div>
       )}
-    </div>
-  );
-}
-
-// Sub-component for Sidebar Navigation Items
-function NavItem({ icon, label, badge, active }) {
-  return (
-    <a 
-      href="#" 
-      className={`
-        flex items-center justify-center lg:justify-start gap-3 p-3 rounded-xl transition-all duration-200 group relative
-        ${active 
-          ? 'bg-brand-gold/10 text-brand-gold' 
-          : 'text-gray-400 hover:bg-white/5 hover:text-white'}
-      `}
-      title={label}
-    >
-      <div className={`transition-transform duration-200 ${active ? 'scale-110' : 'group-hover:scale-110'}`}>
-        {icon}
-      </div>
-      <span className={`text-sm font-bold hidden lg:block ${active ? 'text-white' : ''}`}>{label}</span>
       
-      {/* Badge for Desktop */}
-      {badge && (
-        <span className={`hidden lg:flex ml-auto items-center justify-center min-w-[20px] h-5 px-1.5 rounded-full text-[10px] font-bold
-          ${active ? 'bg-brand-gold text-brand-navy' : 'bg-white/10 text-white'}
-        `}>
-          {badge}
-        </span>
-      )}
+      {/* Detailed Modal */}
+      {selectedRow && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-blue-900/80 backdrop-blur-sm">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
+            <div className="bg-blue-900 p-5 flex justify-between items-center text-white shrink-0">
+              <div className="flex items-center gap-3">
+                <FileText className="text-blue-600" size={24} />
+                <div>
+                  <h3 className="text-xl font-bold">{selectedRow.id}</h3>
+                  <p className="text-blue-600 text-xs font-medium uppercase tracking-wider">{selectedRow.client}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedRow(null)}
+                className="text-gray-300 hover:text-white transition-colors bg-brand-dark hover:bg-gray-800 p-2 rounded-full"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto bg-gray-50 flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
+                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                  <h4 className="text-md font-bold text-blue-900 border-b border-gray-100 pb-2 mb-4">Matter Information</h4>
+                  <dl className="space-y-4">
+                    <div>
+                      <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Matter Description</dt>
+                      <dd className="text-sm font-medium text-gray-900 mt-1">{selectedRow.matterDesc}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Description</dt>
+                      <dd className="text-sm text-gray-700 mt-1">{selectedRow.description}</dd>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Data Source</dt>
+                        <dd className="text-sm font-medium text-gray-800 mt-1">{selectedRow.tag || 'N/A'}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Matter #</dt>
+                        <dd className="text-sm font-medium text-gray-800 mt-1">{selectedRow.matterNum}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Type</dt>
+                        <dd className="text-sm font-bold text-blue-900 mt-1">{selectedRow.type}</dd>
+                      </div>
+                    </div>
+                  </dl>
+                </div>
 
-      {/* Indicator dot for Mobile if has badge */}
-      {badge && !active && (
-        <span className="lg:hidden absolute top-2 right-2 w-2 h-2 bg-brand-gold rounded-full"></span>
+                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
+                  <h4 className="text-md font-bold text-blue-900 border-b border-gray-100 pb-2 mb-4">Matter Administration</h4>
+                  <dl className="space-y-4">
+                    <div>
+                      <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Initiator</dt>
+                      <dd className="text-sm font-medium text-gray-900 mt-1">{selectedRow.initiator}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Initiated Time</dt>
+                      <dd className="text-sm text-gray-700 mt-1">{selectedRow.initiated}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">Current Status</dt>
+                      <span className="px-3 py-1.5 bg-gray-100 text-blue-900 border border-gray-200 rounded-md text-xs font-bold tracking-wide">
+                        {selectedRow.status}
+                      </span>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm md:col-span-2">
+                  <h4 className="text-md font-bold text-blue-900 border-b border-gray-100 pb-2 mb-3">Notes & Attachments</h4>
+                  <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm text-gray-700 w-full">
+                    {selectedRow.notes.split(', ').map((note, i) => (
+                      <div key={i} className="flex items-center gap-2 mb-2 last:mb-0">
+                        <FileText size={16} className="text-blue-600 shrink-0" />
+                        <span className="truncate">{note}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+              </div>
+            </div>
+            
+            <div className="bg-white p-4 border-t border-gray-200 flex justify-end gap-3 shrink-0">
+              <button 
+                onClick={() => setSelectedRow(null)}
+                className="px-5 py-2 text-gray-600 text-sm font-bold hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                Close
+              </button>
+              <button className="px-5 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition-colors shadow-sm">
+                View Full Details
+              </button>
+            </div>
+          </div>
+        </div>
       )}
-    </a>
+    </div>
   );
 }
 

@@ -5,6 +5,7 @@ import {
   Database, 
   FileText, 
   CheckCircle,
+  Check,
   Clock,
   ShieldAlert,
   Info,
@@ -323,25 +324,25 @@ function App() {
     <div className="min-h-screen flex flex-col bg-gray-50 font-sans text-black">
       
       {/* Top Edge-to-Edge Navbar */}
-      <nav className="w-full bg-brand-navy text-white px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center shrink-0 shadow-md z-20">
+      <nav className="w-full bg-teal-900 text-white px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center shrink-0 shadow-md z-20">
         <div className="flex items-center gap-3">
-          <div className="bg-[#13243b] p-1.5 rounded">
-            <Inbox className="text-brand-gold" size={20} />
+          <div className="bg-white/10 p-1.5 rounded">
+            <Inbox className="text-emerald-400" size={20} />
           </div>
           <h1 className="text-xl font-bold text-white tracking-wide flex items-center">
-            CosmosHelios <span className="font-light text-brand-gold ml-1">Intake</span>
+            CosmosHelios <span className="font-light text-emerald-400 ml-1">Intake</span>
           </h1>
-          <div className="hidden sm:block h-5 w-px bg-gray-600 mx-2"></div>
-          <span className="hidden sm:block text-[11px] font-semibold text-gray-300 uppercase tracking-widest mt-1">
-            New Business Intake <span className="text-brand-gold lowercase mx-1 font-normal tracking-normal">|</span> Auto-filled by Cortex
+          <div className="hidden sm:block h-5 w-px bg-white/20 mx-2"></div>
+          <span className="hidden sm:block text-[11px] font-semibold text-white/80 uppercase tracking-widest mt-1">
+            New Business Intake <span className="text-emerald-400 lowercase mx-1 font-normal tracking-normal">|</span> Auto-filled by Cortex
           </span>
         </div>
         <div className="flex items-center gap-3 mt-3 sm:mt-0">
-          <span className="text-[10px] font-bold tracking-widest uppercase text-brand-gold border border-brand-gold/40 px-2.5 py-1 rounded-sm bg-brand-navy shadow-inner">
+          <span className="text-[10px] font-bold tracking-widest uppercase text-emerald-400 border border-emerald-400/40 px-2.5 py-1 rounded-sm bg-black/20 shadow-inner">
             Demo v3.10
           </span>
-          <span className="text-[10px] font-bold tracking-widest uppercase text-white bg-red-900/60 border border-red-800/50 px-2.5 py-1 rounded-sm shadow-inner flex items-center gap-1">
-            <AlertTriangle size={10} className="text-brand-gold" />
+          <span className="text-[10px] font-bold tracking-widest uppercase text-white bg-teal-900 border border-teal-800 px-2.5 py-1 rounded-sm shadow-sm flex items-center gap-1">
+            <AlertTriangle size={10} className="text-white" />
             Confidential
           </span>
         </div>
@@ -353,8 +354,8 @@ function App() {
         {/* Isolated Workflow Stepper */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 flex flex-col xl:flex-row justify-between items-start xl:items-center shrink-0 gap-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-sm font-bold text-brand-navy uppercase tracking-wider">Workflow Inbox</h2>
-            <span className="bg-blue-50 text-brand-navy border border-blue-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+            <h2 className="text-sm font-bold text-teal-900 uppercase tracking-wider">Workflow Inbox</h2>
+            <span className="bg-teal-600/10 text-teal-900 border border-teal-600/20 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
               {pendingIntakes} Pending Intakes
             </span>
           </div>
@@ -362,21 +363,21 @@ function App() {
             {steps.map((step, index) => (
               <div key={index} className="flex items-center shrink-0">
                 <div className={`w-6 h-6 md:w-7 md:h-7 rounded-full flex items-center justify-center border-2 text-[10px] md:text-xs font-bold z-10 transition-colors
-                  ${step.completed ? 'border-brand-gold text-brand-gold bg-white' : 
-                    step.current ? 'border-brand-gold bg-brand-gold text-white shadow-md shadow-brand-gold/20' : 
-                    'border-gray-200 text-gray-400 bg-gray-50'}`}
+                  ${step.completed ? 'border-teal-900 text-teal-900 bg-white' : 
+                    step.current ? 'border-teal-900 bg-teal-900 text-white shadow-teal-900/20' : 
+                    'border-slate-400 text-slate-500 bg-slate-50'}`}
                 >
-                  {step.completed ? <CheckCircle size={12} /> : index + 1}
+                  {step.completed ? <Check size={16} strokeWidth={3} /> : index + 1}
                 </div>
                 <span className={`text-[10px] md:text-[11px] font-semibold ml-1.5 md:ml-2 uppercase tracking-wide
-                  ${step.completed || step.current ? 'text-brand-navy' : 'text-gray-400'} 
+                  ${step.completed || step.current ? 'text-teal-900' : 'text-slate-500'} 
                   ${!step.current ? 'hidden md:block' : ''}`}>
                   {step.label}
                 </span>
                 {/* Connector line */}
                 {index < steps.length - 1 && (
                   <div className={`w-3 md:w-12 h-[2px] ml-1.5 md:ml-4 
-                    ${step.completed ? 'bg-brand-gold' : 'bg-gray-100'}`} 
+                    ${step.completed ? 'bg-teal-600' : 'bg-gray-100'}`} 
                   />
                 )}
               </div>
@@ -389,61 +390,61 @@ function App() {
           
           {/* Actions with Extra Borders */}
           <div className="flex gap-3 w-full xl:w-auto">
-            <button className="flex-1 xl:flex-none bg-white hover:bg-brand-gold/5 text-brand-navy font-bold py-2 px-5 rounded-lg flex items-center justify-center gap-2 transition-all text-sm whitespace-nowrap border-[2px] border-brand-gold shadow-sm group">
-              <Upload size={16} className="text-brand-gold group-hover:scale-110 transition-transform" />
+            <button className="flex-1 xl:flex-none bg-white hover:bg-teal-600/5 text-teal-900 font-bold py-2 px-5 rounded-lg flex items-center justify-center gap-2 transition-all text-sm whitespace-nowrap border-[2px] border-teal-600 shadow-sm group">
+              <Upload size={16} className="text-teal-600 group-hover:scale-110 transition-transform" />
               New Intake <span className="font-normal text-xs opacity-70 hidden sm:inline">(try your own file)</span>
             </button>
-            <label className="flex-1 xl:flex-none bg-white hover:bg-brand-navy/5 text-brand-navy font-bold py-2 px-5 rounded-lg flex items-center justify-center gap-2 transition-all text-sm whitespace-nowrap border-[2px] border-brand-navy shadow-sm group cursor-pointer">
+            <label className="flex-1 xl:flex-none bg-white hover:bg-teal-900/5 text-teal-900 font-bold py-2 px-5 rounded-lg flex items-center justify-center gap-2 transition-all text-sm whitespace-nowrap border-[2px] border-teal-900 shadow-sm group cursor-pointer">
               <input type="file" className="hidden" accept=".csv,.xlsx" />
-              <Database size={16} className="text-brand-navy group-hover:scale-110 transition-transform" />
+              <Database size={16} className="text-teal-900 group-hover:scale-110 transition-transform" />
               Load Aderant Book
             </label>
           </div>
 
           {/* Horizontal Context Bar (Desktop) & Data Pipeline (Mobile) */}
-          <div className="w-full xl:flex-1 bg-brand-navy rounded-xl shadow-sm border border-brand-navy flex flex-col items-start p-4 md:p-2.5">
+          <div className="w-full xl:flex-1 bg-teal-900 rounded-xl shadow-sm border border-teal-900 flex flex-col items-start p-4 md:p-2.5">
             
             {/* --- DESKTOP VIEW --- */}
             <div className="hidden md:flex flex-row items-center gap-5 w-full">
               {/* Recessed Label */}
               <div className="bg-black/20 px-4 py-2 rounded-lg border border-white/5 shadow-inner flex items-center shrink-0">
-                <span className="text-[11px] font-medium text-gray-300 tracking-wide">
+                <span className="text-[11px] font-medium text-white tracking-wide">
                   Where the data comes from:
                 </span>
               </div>
               
               <div className="flex items-center gap-6 w-full justify-around px-2 border-l border-white/10 pl-6">
                 <div className="flex items-center gap-3">
-                  <div className="bg-[#13243b] p-2 rounded-lg border border-gray-700/50">
-                    <FileText className="text-brand-gold" size={16} />
+                  <div className="bg-white/10 p-2 rounded-lg border border-white/5">
+                    <FileText className="text-emerald-400" size={16} />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-white uppercase tracking-wider">Real Filing</span>
-                    <span className="text-xs text-gray-200 font-medium">Verified court docs</span>
+                    <span className="text-xs text-slate-300 font-medium">Verified court docs</span>
                   </div>
                 </div>
 
-                <div className="w-px h-8 bg-gray-700"></div>
+                <div className="w-px h-8 bg-slate-700"></div>
 
                 <div className="flex items-center gap-3">
-                  <div className="bg-[#13243b] p-2 rounded-lg border border-gray-700/50">
-                    <ShieldAlert className="text-brand-gold" size={16} />
+                  <div className="bg-white/10 p-2 rounded-lg border border-white/5">
+                    <ShieldAlert className="text-emerald-400" size={16} />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-white uppercase tracking-wider">Live Conflict Search</span>
-                    <span className="text-xs text-gray-200 font-medium">491 history records</span>
+                    <span className="text-xs text-slate-300 font-medium">491 history records</span>
                   </div>
                 </div>
 
-                <div className="w-px h-8 bg-gray-700"></div>
+                <div className="w-px h-8 bg-slate-700"></div>
 
                 <div className="flex items-center gap-3">
-                  <div className="bg-[#13243b] p-2 rounded-lg border border-gray-700/50">
-                    <Database className="text-brand-gold" size={16} />
+                  <div className="bg-white/10 p-2 rounded-lg border border-white/5">
+                    <Database className="text-emerald-400" size={16} />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-xs font-bold text-white uppercase tracking-wider">Firm Book</span>
-                    <span className="text-xs text-gray-200 font-medium">CS&K Aderant extract</span>
+                    <span className="text-xs text-slate-300 font-medium">CS&K Aderant extract</span>
                   </div>
                 </div>
               </div>
@@ -452,36 +453,36 @@ function App() {
             {/* --- MOBILE VIEW (Vertical Legend) --- */}
             <div className="flex md:hidden flex-col w-full">
               <div className="bg-black/20 px-3 py-2 rounded-lg border border-white/5 shadow-inner flex items-center shrink-0 w-full mb-3">
-                <span className="text-[10px] font-medium text-gray-300 tracking-wide">
+                <span className="text-[10px] font-medium text-white tracking-wide">
                   Where the data comes from:
                 </span>
               </div>
               
               <div className="flex flex-col gap-2">
                 {/* Item 1 */}
-                <div className="bg-[#13243b] p-2.5 rounded-lg border border-gray-700/50 flex items-center gap-3 w-full shadow-sm">
-                  <FileText className="text-brand-gold shrink-0" size={16} />
+                <div className="bg-white/10 p-2.5 rounded-lg border border-white/5 flex items-center gap-3 w-full shadow-sm">
+                  <FileText className="text-emerald-400 shrink-0" size={16} />
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-white uppercase tracking-wider">Real Filing</span>
-                    <span className="text-[9px] text-gray-300 font-medium">Verified court docs</span>
+                    <span className="text-[9px] text-slate-300 font-medium">Verified court docs</span>
                   </div>
                 </div>
 
                 {/* Item 2 */}
-                <div className="bg-[#13243b] p-2.5 rounded-lg border border-gray-700/50 flex items-center gap-3 w-full shadow-sm">
-                  <ShieldAlert className="text-brand-gold shrink-0" size={16} />
+                <div className="bg-white/10 p-2.5 rounded-lg border border-white/5 flex items-center gap-3 w-full shadow-sm">
+                  <ShieldAlert className="text-emerald-400 shrink-0" size={16} />
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-white uppercase tracking-wider">Live Conflict Search</span>
-                    <span className="text-[9px] text-gray-300 font-medium">491 history records</span>
+                    <span className="text-[9px] text-slate-300 font-medium">491 history records</span>
                   </div>
                 </div>
 
                 {/* Item 3 */}
-                <div className="bg-[#13243b] p-2.5 rounded-lg border border-gray-700/50 flex items-center gap-3 w-full shadow-sm">
-                  <Database className="text-brand-gold shrink-0" size={16} />
+                <div className="bg-white/10 p-2.5 rounded-lg border border-white/5 flex items-center gap-3 w-full shadow-sm">
+                  <Database className="text-emerald-400 shrink-0" size={16} />
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-white uppercase tracking-wider">Firm Book</span>
-                    <span className="text-[9px] text-gray-300 font-medium">CS&K Aderant extract</span>
+                    <span className="text-[9px] text-slate-300 font-medium">CS&K Aderant extract</span>
                   </div>
                 </div>
               </div>
@@ -494,11 +495,11 @@ function App() {
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col mb-6">
           <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50 shrink-0 rounded-t-xl">
             <div className="flex items-center gap-3">
-              <h2 className="text-sm font-bold text-brand-navy uppercase tracking-wider">Intake Pipeline Data</h2>
+              <h2 className="text-sm font-bold text-teal-900 uppercase tracking-wider">Intake Pipeline Data</h2>
             </div>
             <div className="flex bg-gray-200/60 rounded-lg p-1">
-               <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-brand-navy' : 'text-gray-500 hover:text-gray-700'}`} title="Table View"><List size={16} /></button>
-               <button onClick={() => setViewMode('card')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'card' ? 'bg-white shadow-sm text-brand-navy' : 'text-gray-500 hover:text-gray-700'}`} title="Card View"><LayoutGrid size={16} /></button>
+               <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-teal-900' : 'text-gray-500 hover:text-gray-700'}`} title="Table View"><List size={16} /></button>
+               <button onClick={() => setViewMode('card')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'card' ? 'bg-white shadow-sm text-teal-900' : 'text-gray-500 hover:text-gray-700'}`} title="Card View"><LayoutGrid size={16} /></button>
             </div>
           </div>
           
@@ -516,8 +517,8 @@ function App() {
               </thead>
               <tbody>
                 {currentTableData.length > 0 ? currentTableData.map((row) => (
-                  <tr key={row.id} className="border-b border-gray-100 hover:bg-blue-50/30 transition-colors">
-                    <td className="p-3 text-sm font-semibold text-brand-navy whitespace-nowrap">
+                  <tr key={row.id} className="border-b border-gray-100 hover:bg-teal-600/10/30 transition-colors">
+                    <td className="p-3 text-sm font-semibold text-teal-900 whitespace-nowrap">
                       {row.id}
                     </td>
                     <td className="p-3 text-sm text-black font-medium whitespace-nowrap">{row.client}</td>
@@ -529,9 +530,9 @@ function App() {
                         {row.tag && (
                           <span 
                             className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-help shadow-sm ${
-                              row.tag === 'Real Filing' ? 'bg-[#C9A456]/10 text-[#b08b3e] border-[#C9A456]/30' :
-                              row.tag === 'Live Conflict Search' ? 'bg-red-50 text-red-600 border-red-200' :
-                              'bg-[#13243b]/5 text-[#13243b] border-[#13243b]/20'
+                              row.tag === 'Real Filing' ? 'bg-teal-600/10 text-[#b08b3e] border-teal-600/30' :
+                              row.tag === 'Live Conflict Search' ? 'bg-teal-900/10 text-teal-900 border-teal-900/30' :
+                              'bg-slate-800/5 text-teal-800 border-teal-800/20'
                             }`}
                             title={
                               row.tag === 'Real Filing' ? 'Verified public court documents' :
@@ -550,34 +551,34 @@ function App() {
                       <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-bold tracking-wide whitespace-nowrap">{row.status}</span>
                     </td>
                     <td className="p-3">
-                      <a href="#" className="text-brand-gold hover:text-[#b59247] font-semibold text-xs whitespace-nowrap underline underline-offset-2">
+                      <a href="#" className="text-teal-600 hover:text-teal-700 font-semibold text-xs whitespace-nowrap underline underline-offset-2">
                         Open / Intake
                       </a>
                     </td>
                     <td className="p-3">
-                      <a href="#" className="text-brand-navy hover:text-brand-gold font-semibold text-xs whitespace-nowrap flex items-center gap-1 transition-colors">
+                      <a href="#" className="text-teal-900 hover:text-teal-600 font-semibold text-xs whitespace-nowrap flex items-center gap-1 transition-colors">
                         <FileText size={14} />
                         Intake Summary
                       </a>
                     </td>
                     <td className="p-3">
-                      <button className="bg-brand-navy hover:bg-brand-dark text-white text-[11px] uppercase tracking-wide font-bold py-1.5 px-2.5 rounded whitespace-nowrap transition-colors flex items-center gap-1 shadow-sm">
+                      <button className="bg-teal-900 hover:bg-brand-dark text-white text-[11px] uppercase tracking-wide font-bold py-1.5 px-2.5 rounded whitespace-nowrap transition-colors flex items-center gap-1 shadow-sm">
                         <ShieldAlert size={12} />
                         Conflict Analysis
                       </button>
                     </td>
-                    <td className="p-3 sticky right-0 bg-white shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)] border-l border-gray-100 group-hover:bg-blue-50/30">
+                    <td className="p-3 sticky right-0 bg-white shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)] border-l border-gray-100 group-hover:bg-teal-600/10/30">
                       <div className="flex items-center gap-2 min-w-max">
                         <button 
                           onClick={() => setSelectedRow(row)}
-                          className="text-brand-navy bg-brand-navy/5 hover:bg-brand-gold hover:text-white transition-colors flex items-center justify-center p-1.5 rounded"
+                          className="text-teal-900 bg-teal-900/5 hover:bg-teal-600 hover:text-white transition-colors flex items-center justify-center p-1.5 rounded"
                           title="View Details"
                         >
                           <Eye size={18} />
                         </button>
                         <button 
                           onClick={() => setRowToDelete(row)}
-                          className="text-red-500 bg-red-50 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center p-1.5 rounded"
+                          className="text-teal-900 bg-teal-900/10 hover:bg-teal-900 hover:text-white transition-colors flex items-center justify-center p-1.5 rounded"
                           title="Delete Record"
                         >
                           <Trash2 size={18} />
@@ -599,18 +600,18 @@ function App() {
                 {currentTableData.length > 0 ? currentTableData.map((row) => (
                   <div key={row.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_15px_-4px_rgba(201,164,86,0.15)] transition-all flex flex-col relative group overflow-hidden">
                     <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-black font-mono text-brand-navy bg-brand-navy/5 px-2 py-0.5 rounded">{row.id}</span>
+                      <span className="text-xs font-black font-mono text-teal-900 bg-teal-900/5 px-2 py-0.5 rounded">{row.id}</span>
                       <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 border border-gray-100">
                         <button 
                           onClick={() => setSelectedRow(row)}
-                          className="text-brand-navy hover:bg-brand-navy/10 transition-colors p-1.5 rounded"
+                          className="text-teal-900 hover:bg-teal-900/10 transition-colors p-1.5 rounded"
                           title="View Details"
                         >
                           <Eye size={16} />
                         </button>
                         <button 
                           onClick={() => setRowToDelete(row)}
-                          className="text-red-500 hover:bg-red-50 transition-colors p-1.5 rounded"
+                          className="text-teal-900 hover:bg-teal-900/10 transition-colors p-1.5 rounded"
                           title="Delete Record"
                         >
                           <Trash2 size={16} />
@@ -625,9 +626,9 @@ function App() {
                       <div className="mb-4">
                         <span 
                           className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-help shadow-sm ${
-                            row.tag === 'Real Filing' ? 'bg-[#C9A456]/10 text-[#b08b3e] border-[#C9A456]/30' :
-                            row.tag === 'Live Conflict Search' ? 'bg-red-50 text-red-600 border-red-200' :
-                            'bg-[#13243b]/5 text-[#13243b] border-[#13243b]/20'
+                            row.tag === 'Real Filing' ? 'bg-teal-600/10 text-[#b08b3e] border-teal-600/30' :
+                            row.tag === 'Live Conflict Search' ? 'bg-teal-900/10 text-teal-900 border-teal-900/30' :
+                            'bg-slate-800/5 text-teal-800 border-teal-800/20'
                           }`}
                         >
                           {row.tag}
@@ -642,12 +643,12 @@ function App() {
                       </div>
                       
                       <div className="flex justify-between items-center mt-1">
-                        <a href="#" className="text-brand-gold hover:text-[#b59247] font-semibold text-xs underline underline-offset-2">Open / Intake</a>
+                        <a href="#" className="text-teal-600 hover:text-teal-700 font-semibold text-xs underline underline-offset-2">Open / Intake</a>
                         <div className="flex gap-2">
-                           <button className="bg-gray-100 hover:bg-gray-200 text-brand-navy p-1.5 rounded transition-colors" title="Intake Summary">
+                           <button className="bg-gray-100 hover:bg-gray-200 text-teal-900 p-1.5 rounded transition-colors" title="Intake Summary">
                              <FileText size={14} />
                            </button>
-                           <button className="bg-brand-navy hover:bg-[#08152b] text-white p-1.5 rounded transition-colors shadow-sm" title="Conflict Analysis">
+                           <button className="bg-teal-900 hover:bg-[#08152b] text-white p-1.5 rounded transition-colors shadow-sm" title="Conflict Analysis">
                              <ShieldAlert size={14} />
                            </button>
                         </div>
@@ -667,13 +668,13 @@ function App() {
           {data.length > 0 && (
             <div className="flex items-center justify-between p-4 border-t border-gray-200 bg-white shrink-0 rounded-b-xl">
               <div className="text-sm text-gray-500">
-                Showing <span className="font-semibold text-brand-navy">{startIndex + 1}</span> to <span className="font-semibold text-brand-navy">{Math.min(startIndex + rowsPerPage, data.length)}</span> of <span className="font-semibold text-brand-navy">{data.length}</span> entries
+                Showing <span className="font-semibold text-teal-900">{startIndex + 1}</span> to <span className="font-semibold text-teal-900">{Math.min(startIndex + rowsPerPage, data.length)}</span> of <span className="font-semibold text-teal-900">{data.length}</span> entries
               </div>
               <div className="flex items-center gap-1 border border-gray-300 rounded-md overflow-hidden shadow-sm">
                 <button 
                   onClick={handlePrevPage}
                   disabled={currentPage === 1}
-                  className="p-1.5 bg-white text-gray-600 hover:bg-gray-50 hover:text-brand-gold disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-r border-gray-300"
+                  className="p-1.5 bg-white text-gray-600 hover:bg-gray-50 hover:text-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-r border-gray-300"
                 >
                   <ChevronLeft size={18} />
                 </button>
@@ -683,7 +684,7 @@ function App() {
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`w-8 h-8 flex items-center justify-center text-sm font-bold transition-colors
-                      ${currentPage === page ? 'bg-brand-gold text-white' : 'bg-white text-brand-navy hover:bg-gray-50 border-r border-gray-300'}`}
+                      ${currentPage === page ? 'bg-teal-600 text-white' : 'bg-white text-teal-900 hover:bg-gray-50 border-r border-gray-300'}`}
                   >
                     {page}
                   </button>
@@ -692,7 +693,7 @@ function App() {
                 <button 
                   onClick={handleNextPage}
                   disabled={currentPage === totalPages}
-                  className="p-1.5 bg-white text-gray-600 hover:bg-gray-50 hover:text-brand-gold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="p-1.5 bg-white text-gray-600 hover:bg-gray-50 hover:text-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <ChevronRight size={18} />
                 </button>
@@ -705,26 +706,26 @@ function App() {
 
       {/* Delete Confirmation Modal */}
       {rowToDelete && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-brand-navy/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-teal-900/60 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
             <div className="p-6 flex flex-col items-center text-center">
-              <div className="w-14 h-14 bg-red-100 text-red-600 rounded-full flex items-center justify-center mb-4">
+              <div className="w-14 h-14 bg-teal-900/20 text-teal-900 rounded-full flex items-center justify-center mb-4">
                 <AlertTriangle size={28} />
               </div>
-              <h3 className="text-xl font-bold text-brand-navy mb-2">Delete Record?</h3>
+              <h3 className="text-xl font-bold text-teal-900 mb-2">Delete Record?</h3>
               <p className="text-gray-600 text-sm mb-6 leading-relaxed">
                 Are you sure you want to delete <span className="font-bold text-black">{rowToDelete.id}</span>? This action is permanent and cannot be undone.
               </p>
               <div className="flex gap-3 w-full">
                 <button 
                   onClick={() => setRowToDelete(null)}
-                  className="flex-1 px-4 py-2.5 text-brand-navy font-bold bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  className="flex-1 px-4 py-2.5 text-teal-900 font-bold bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleDeleteConfirm}
-                  className="flex-1 px-4 py-2.5 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition-colors shadow-sm"
+                  className="flex-1 px-4 py-2.5 bg-teal-900 text-white font-bold rounded-lg hover:bg-teal-950 transition-colors shadow-sm"
                 >
                   Delete
                 </button>
@@ -736,14 +737,14 @@ function App() {
       
       {/* Detailed Modal */}
       {selectedRow && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-brand-navy/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-teal-900/80 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
-            <div className="bg-brand-navy p-5 flex justify-between items-center text-white shrink-0">
+            <div className="bg-teal-900 p-5 flex justify-between items-center text-white shrink-0">
               <div className="flex items-center gap-3">
-                <FileText className="text-brand-gold" size={24} />
+                <FileText className="text-teal-600" size={24} />
                 <div>
                   <h3 className="text-xl font-bold">{selectedRow.id}</h3>
-                  <p className="text-brand-gold text-xs font-medium uppercase tracking-wider">{selectedRow.client}</p>
+                  <p className="text-teal-600 text-xs font-medium uppercase tracking-wider">{selectedRow.client}</p>
                 </div>
               </div>
               <button 
@@ -758,7 +759,7 @@ function App() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                  <h4 className="text-md font-bold text-brand-navy border-b border-gray-100 pb-2 mb-4">Matter Information</h4>
+                  <h4 className="text-md font-bold text-teal-900 border-b border-gray-100 pb-2 mb-4">Matter Information</h4>
                   <dl className="space-y-4">
                     <div>
                       <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Matter Description</dt>
@@ -779,14 +780,14 @@ function App() {
                       </div>
                       <div>
                         <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Type</dt>
-                        <dd className="text-sm font-bold text-brand-navy mt-1">{selectedRow.type}</dd>
+                        <dd className="text-sm font-bold text-teal-900 mt-1">{selectedRow.type}</dd>
                       </div>
                     </div>
                   </dl>
                 </div>
 
                 <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm">
-                  <h4 className="text-md font-bold text-brand-navy border-b border-gray-100 pb-2 mb-4">Matter Administration</h4>
+                  <h4 className="text-md font-bold text-teal-900 border-b border-gray-100 pb-2 mb-4">Matter Administration</h4>
                   <dl className="space-y-4">
                     <div>
                       <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest">Initiator</dt>
@@ -798,7 +799,7 @@ function App() {
                     </div>
                     <div>
                       <dt className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-2">Current Status</dt>
-                      <span className="px-3 py-1.5 bg-gray-100 text-brand-navy border border-gray-200 rounded-md text-xs font-bold tracking-wide">
+                      <span className="px-3 py-1.5 bg-gray-100 text-teal-900 border border-gray-200 rounded-md text-xs font-bold tracking-wide">
                         {selectedRow.status}
                       </span>
                     </div>
@@ -806,11 +807,11 @@ function App() {
                 </div>
 
                 <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm md:col-span-2">
-                  <h4 className="text-md font-bold text-brand-navy border-b border-gray-100 pb-2 mb-3">Notes & Attachments</h4>
+                  <h4 className="text-md font-bold text-teal-900 border-b border-gray-100 pb-2 mb-3">Notes & Attachments</h4>
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-sm text-gray-700 w-full">
                     {selectedRow.notes.split(', ').map((note, i) => (
                       <div key={i} className="flex items-center gap-2 mb-2 last:mb-0">
-                        <FileText size={16} className="text-brand-gold shrink-0" />
+                        <FileText size={16} className="text-teal-600 shrink-0" />
                         <span className="truncate">{note}</span>
                       </div>
                     ))}
@@ -827,7 +828,7 @@ function App() {
               >
                 Close
               </button>
-              <button className="px-5 py-2 bg-brand-gold text-white text-sm font-bold rounded-lg hover:bg-[#b59247] transition-colors shadow-sm">
+              <button className="px-5 py-2 bg-teal-600 text-white text-sm font-bold rounded-lg hover:bg-teal-700 transition-colors shadow-sm">
                 View Full Details
               </button>
             </div>
