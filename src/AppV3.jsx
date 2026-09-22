@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import IntakePage from './IntakePage';
+import IntakeSummaryModal from './IntakeSummaryModal';
+import ConflictAnalysisModal from './ConflictAnalysisModal';
 import { 
   Inbox, 
   Upload, 
@@ -19,17 +22,26 @@ import {
 function AppV3() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
+  const [intakeItem, setIntakeItem] = useState(null);
+  const [summaryItem, setSummaryItem] = useState(null);
+  const [conflictItem, setConflictItem] = useState(null);
   
   const pendingIntakes = 12; 
 
+  // Active step: 0 = queue (Email in), 1 = intake page open (Intake)
+  const activeStepIndex = intakeItem ? 1 : 0;
   const steps = [
-    { label: 'Email in', completed: true },
-    { label: 'Intake', completed: true },
-    { label: 'Approval', completed: false, current: true },
-    { label: 'Conflict Search', completed: false },
-    { label: 'Conflict Review', completed: false },
-    { label: 'Decision', completed: false }
-  ];
+    { label: 'Email in' },
+    { label: 'Intake' },
+    { label: 'Approval' },
+    { label: 'Conflict Search' },
+    { label: 'Conflict Review' },
+    { label: 'Decision' },
+  ].map((s, i) => ({
+    ...s,
+    completed: i < activeStepIndex,
+    current: i === activeStepIndex,
+  }));
   
   const initialTableData = [
     {
@@ -171,9 +183,9 @@ function AppV3() {
              <Upload size={16} className="text-orange-600 group-hover:scale-110 transition-transform" />
              New Intake
            </button>
-           <label className="hidden md:flex items-center gap-2 bg-orange-800 hover:bg-orange-900 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm cursor-pointer group">
+           <label className="hidden md:flex items-center gap-2 bg-orange-800 hover:bg-orange-900 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm cursor-pointer group border border-white/10">
              <input type="file" className="hidden" accept=".csv,.xlsx" />
-             <Database size={16} className="text-orange-600 group-hover:scale-110 transition-transform" />
+             <Database size={16} className="text-white group-hover:scale-110 transition-transform" />
              Load Aderant Book
            </label>
            
@@ -254,127 +266,150 @@ function AppV3() {
           </div>
         </div>
 
-        {/* Center Stage - Rich Action Cards */}
-        <div className="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50/50">
-          
-          <div className="flex justify-between items-center mb-6 w-full">
-             <h2 className="text-lg font-bold text-orange-800">Intake Queue</h2>
-             <div className="text-sm text-slate-700 font-medium">
-               Showing <span className="text-orange-800 font-bold">{data.length}</span> items
-             </div>
-          </div>
-
-          <div className="flex flex-col gap-5 w-full pb-12">
-            {data.map((item) => (
-              <div 
-                key={item.id} 
-                className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:border-orange-600/30 transition-all overflow-hidden flex flex-col"
-              >
-                {/* Card Header (Meta Info) */}
-                <div className="flex justify-between items-center px-6 py-3 border-b border-slate-100 bg-slate-50/50">
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-black font-mono text-orange-800 bg-slate-200/60 px-2 py-1 rounded-md">{item.id}</span>
-                    <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-widest border ${getRiskStyle(item.riskLevel)}`}>
-                      {item.riskLevel} Risk
-                    </span>
-                    <span className="text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-widest bg-slate-100 text-slate-800 border border-slate-200">
-                      {item.status}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <button 
-                      onClick={() => setSelectedRow(item)}
-                      className="text-slate-600 hover:text-orange-800 hover:bg-slate-200/50 p-2 rounded-lg transition-colors"
-                      title="View Details"
-                    >
-                      <Eye size={16} />
-                    </button>
-                    <button 
-                      onClick={() => setRowToDelete(item)}
-                      className="text-slate-600 hover:text-orange-800 hover:bg-orange-800/10 p-2 rounded-lg transition-colors"
-                      title="Delete Record"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Card Body (Core Info) */}
-                <div className="p-6 flex flex-col md:flex-row gap-6">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-2">
-                       <span className="text-[10px] text-orange-600 uppercase tracking-widest font-bold bg-orange-600/10 px-2 py-0.5 rounded-full border border-orange-600/20">
-                         {item.tag}
-                       </span>
-                       <span className="text-xs text-slate-600 font-medium flex items-center gap-1">
-                         <Clock size={12}/> {item.initiated}
-                       </span>
-                    </div>
-                    <h3 className="text-xl font-extrabold text-orange-800 mb-2 leading-tight">{item.client}</h3>
-                    <p className="text-sm text-slate-800 leading-relaxed mb-4">{item.description}</p>
-                    
-                    <div className="flex flex-wrap items-center gap-6 border-t border-slate-100 pt-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Jurisdiction:</span>
-                        <span className="text-xs font-semibold text-orange-800">{item.jurisdiction}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Lead Partner:</span>
-                        <span className="text-xs font-semibold text-orange-800">{item.leadPartner}</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Notes / Attachments Sidebar within card */}
-                  <div className="w-full md:w-1/3 flex flex-col pt-2 md:pt-0">
-                    <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-2">Attachments</h4>
-                    <div className="flex flex-col gap-2">
-                      {item.notes.split(',').map((note, i) => (
-                        <div key={i} className="flex items-start gap-2 group cursor-pointer">
-                          <FileText size={14} className="text-orange-600 mt-0.5 shrink-0 group-hover:scale-110 transition-transform" />
-                          <span className="text-xs text-slate-800 font-medium leading-tight group-hover:text-orange-800 transition-colors line-clamp-2">
-                            {note.trim()}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Card Footer (V1 Actions) */}
-                <div className="bg-white border-t border-slate-100 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <a href="#" className="text-orange-600 hover:text-orange-700 font-bold text-sm underline underline-offset-4 decoration-2 decoration-violet-700/30 hover:decoration-violet-700 flex items-center gap-1 transition-all">
-                    Open / Intake <ArrowRight size={14} />
-                  </a>
-                  
-                  <div className="flex items-center gap-3 w-full sm:w-auto">
-                    <button className="flex-1 sm:flex-none bg-white hover:bg-slate-50 text-orange-800 border border-slate-200 font-bold text-xs py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm">
-                      <FileText size={14} className="text-orange-800" />
-                      Intake Summary
-                    </button>
-                    
-                    <button className="flex-1 sm:flex-none bg-orange-800 hover:bg-orange-900 text-white font-bold text-xs py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 group">
-                      <ShieldAlert size={14} className="text-orange-600 group-hover:animate-pulse" />
-                      Conflict Analysis
-                    </button>
-                  </div>
-                </div>
-
-              </div>
-            ))}
+        {/* Center Stage — Queue or Intake view */}
+        {intakeItem ? (
+          <IntakePage matter={intakeItem} onBack={() => setIntakeItem(null)} />
+        ) : (
+          <div className="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50/50">
             
-            {data.length === 0 && (
-              <div className="text-center p-12 bg-white rounded-2xl border border-slate-200 border-dashed">
-                <p className="text-slate-700 font-medium">No records found in the queue.</p>
-              </div>
-            )}
+            <div className="flex justify-between items-center mb-6 w-full">
+               <h2 className="text-lg font-bold text-orange-800">Intake Queue</h2>
+               <div className="text-sm text-slate-700 font-medium">
+                 Showing <span className="text-orange-800 font-bold">{data.length}</span> items
+               </div>
+            </div>
+
+            <div className="flex flex-col gap-5 w-full pb-12">
+              {data.map((item) => (
+                <div 
+                  key={item.id} 
+                  className="bg-white rounded-2xl shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-200 hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] hover:border-orange-600/30 transition-all overflow-hidden flex flex-col"
+                >
+                  {/* Card Header (Meta Info) */}
+                  <div className="flex justify-between items-center px-6 py-3 border-b border-slate-100 bg-slate-50/50">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-black font-mono text-orange-800 bg-slate-200/60 px-2 py-1 rounded-md">{item.id}</span>
+                      <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-widest border ${getRiskStyle(item.riskLevel)}`}>
+                        {item.riskLevel} Risk
+                      </span>
+                      <span className="text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-widest bg-slate-100 text-slate-800 border border-slate-200">
+                        {item.status}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button 
+                        onClick={() => setSelectedRow(item)}
+                        className="text-slate-600 hover:text-orange-800 hover:bg-slate-200/50 p-2 rounded-lg transition-colors"
+                        title="View Details"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button 
+                        onClick={() => setRowToDelete(item)}
+                        className="text-slate-600 hover:text-orange-800 hover:bg-orange-800/10 p-2 rounded-lg transition-colors"
+                        title="Delete Record"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Card Body (Core Info) */}
+                  <div className="p-6 flex flex-col md:flex-row gap-6">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                         <span className="text-[10px] text-orange-600 uppercase tracking-widest font-bold bg-orange-600/10 px-2 py-0.5 rounded-full border border-orange-600/20">
+                           {item.tag}
+                         </span>
+                         <span className="text-xs text-slate-600 font-medium flex items-center gap-1">
+                           <Clock size={12}/> {item.initiated}
+                         </span>
+                      </div>
+                      <h3 className="text-xl font-extrabold text-orange-800 mb-2 leading-tight">{item.client}</h3>
+                      <p className="text-sm text-slate-800 leading-relaxed mb-4">{item.description}</p>
+                      
+                      <div className="flex flex-wrap items-center gap-6 border-t border-slate-100 pt-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Jurisdiction:</span>
+                          <span className="text-xs font-semibold text-orange-800">{item.jurisdiction}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Lead Partner:</span>
+                          <span className="text-xs font-semibold text-orange-800">{item.leadPartner}</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Notes / Attachments Sidebar within card */}
+                    <div className="w-full md:w-1/3 flex flex-col pt-2 md:pt-0">
+                      <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-600 mb-2">Attachments</h4>
+                      <div className="flex flex-col gap-2">
+                        {item.notes.split(',').map((note, i) => (
+                          <div key={i} className="flex items-start gap-2 group cursor-pointer">
+                            <FileText size={14} className="text-orange-600 mt-0.5 shrink-0 group-hover:scale-110 transition-transform" />
+                            <span className="text-xs text-slate-800 font-medium leading-tight group-hover:text-orange-800 transition-colors line-clamp-2">
+                              {note.trim()}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Card Footer */}
+                  <div className="bg-white border-t border-slate-100 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <button
+                      onClick={() => setIntakeItem(item)}
+                      className="text-orange-600 hover:text-orange-700 font-bold text-sm underline underline-offset-4 decoration-2 decoration-violet-700/30 hover:decoration-violet-700 flex items-center gap-1 transition-all"
+                    >
+                      Open / Intake <ArrowRight size={14} />
+                    </button>
+                    
+                    <div className="flex items-center gap-3 w-full sm:w-auto">
+                      <button
+                        onClick={() => setSummaryItem(item)}
+                        className="flex-1 sm:flex-none bg-white hover:bg-slate-50 text-orange-800 border border-slate-200 font-bold text-xs py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm">
+                        <FileText size={14} className="text-orange-800" />
+                        Intake Summary
+                      </button>
+                      
+                      <button
+                        onClick={() => setConflictItem(item)}
+                        className="flex-1 sm:flex-none bg-orange-800 hover:bg-orange-900 text-white font-bold text-xs py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 group"
+                      >
+                        <ShieldAlert size={14} className="text-orange-600 group-hover:animate-pulse" />
+                        Conflict Analysis
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+              ))}
+              
+              {data.length === 0 && (
+                <div className="text-center p-12 bg-white rounded-2xl border border-slate-200 border-dashed">
+                  <p className="text-slate-700 font-medium">No records found in the queue.</p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
+
+
+      {/* Intake Summary Modal */}
+      {summaryItem && (
+        <IntakeSummaryModal item={summaryItem} onClose={() => setSummaryItem(null)} />
+      )}
+
+      {/* Conflict Analysis Modal */}
+      {conflictItem && (
+        <ConflictAnalysisModal item={conflictItem} onClose={() => setConflictItem(null)} />
+      )}
 
       {/* Delete Confirmation Modal */}
       {rowToDelete && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-orange-800/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col">
             <div className="p-6 flex flex-col items-center text-center">
               <div className="w-16 h-16 bg-orange-800/10 text-orange-800 rounded-full flex items-center justify-center mb-4 border border-orange-800/20">
@@ -405,16 +440,16 @@ function AppV3() {
       
       {/* Detailed Modal */}
       {selectedRow && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-orange-800/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/20 backdrop-blur-[2px]">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="bg-orange-800 p-5 flex justify-between items-center text-white shrink-0">
               <div className="flex items-center gap-3">
-                <div className="bg-white/10 p-2 rounded-lg">
-                  <FileText className="text-orange-600" size={20} />
+                <div className="bg-white/10 p-2 rounded-lg border border-white/10 shadow-inner shadow-orange-950/20">
+                  <FileText className="text-white" size={20} />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold tracking-tight">{selectedRow.id}</h3>
-                  <p className="text-orange-600 text-[10px] font-bold uppercase tracking-widest">{selectedRow.client}</p>
+                  <h3 className="text-xl font-bold tracking-tight text-white">{selectedRow.id}</h3>
+                  <p className="text-white/90 text-[10px] font-bold uppercase tracking-widest">{selectedRow.client}</p>
                 </div>
               </div>
               <button 
@@ -498,7 +533,13 @@ function AppV3() {
               >
                 Close
               </button>
-              <button className="px-6 py-2.5 bg-orange-600 text-white text-sm font-bold rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5">
+              <button
+                onClick={() => {
+                  setSelectedRow(null);
+                  setIntakeItem(selectedRow);
+                }}
+                className="px-6 py-2.5 bg-orange-600 text-white text-sm font-bold rounded-xl hover:bg-orange-700 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5"
+              >
                 View Full Details
               </button>
             </div>
