@@ -456,14 +456,12 @@ export default function IntakePage({ onBack }) {
           </button>
         </div>
         <button
-          disabled={!extracted || approvalSubmitted}
           onClick={() => {
+            if (approvalSubmitted) return;
             setApprovalSubmitted(true);
             setLegalCardVisible(false);
           }}
-          className={`font-bold text-sm px-6 py-2.5 rounded-lg transition-all shadow-sm ${
-            extracted && !approvalSubmitted ? 'bg-orange-800 hover:bg-orange-900 text-white hover:shadow-md hover:-translate-y-0.5'
-            : 'bg-slate-100 text-slate-300 cursor-not-allowed'}`}>
+          className={`font-bold text-sm px-6 py-2.5 rounded-lg transition-all shadow-sm bg-orange-800 text-white hover:bg-orange-900 hover:shadow-md hover:-translate-y-0.5`}>
           {approvalSubmitted ? 'Approve and send to Conflicts' : 'Submit for approval'}
         </button>
       </div>
