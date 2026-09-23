@@ -23,7 +23,9 @@ function App() {
     setCurrentPath(path);
   };
 
-  if (currentPath.toLowerCase().endsWith('/v1')) {
+  const cleanPath = (currentPath || '').toLowerCase().split('?')[0].replace(/\/$/, '');
+
+  if (cleanPath.endsWith('/v1') || cleanPath === '/v1') {
     return (
       <>
         <VersionSwitcher currentPath={currentPath} navigate={navigate} />
@@ -32,7 +34,7 @@ function App() {
     );
   }
 
-  if (currentPath.toLowerCase().endsWith('/v2')) {
+  if (cleanPath.endsWith('/v2') || cleanPath === '/v2') {
     return (
       <>
         <VersionSwitcher currentPath={currentPath} navigate={navigate} />
@@ -41,7 +43,7 @@ function App() {
     );
   }
 
-  if (currentPath.toLowerCase().endsWith('/v3')) {
+  if (cleanPath.endsWith('/v3') || cleanPath === '/v3') {
     return (
       <>
         <VersionSwitcher currentPath={currentPath} navigate={navigate} />

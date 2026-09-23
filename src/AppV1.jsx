@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import IntakePage from './IntakePage';
+import ConflictAnalysisModal from './ConflictAnalysisModal';
 import { 
   Inbox, 
   Upload, 
@@ -20,14 +22,303 @@ import {
   LayoutGrid,
   List
 } from 'lucide-react';
+import LogoCh from './assets/logo-ch.png';
+
+const initialTableData = [
+  {
+    id: 'CM-1098466',
+    tag: 'Real Filing',
+    riskLevel: 'High',
+    jurisdiction: 'NY State Supreme',
+    leadPartner: 'J. Harrison',
+    description: 'Marchese v. New City Westchester (slip and fall) - default alleged',
+    initiated: 'June 29, 2026 1:38 PM',
+    type: 'New Client/Matter Intake (RUSH)',
+    client: 'K2 Claims Services, LLC',
+    matterNum: '0',
+    matterDesc: 'Nicolina Marchese v. New City Westchester Group LLC d/b/a Westchester Golf & Country Club',
+    initiator: 'Cosmos Cortex (auto-intake)',
+    status: 'Draft - Intake',
+    notes: 'CM-1098466 Email - new file assignment.pdf, CM-1098466 Complaint.pdf'
+  },
+  {
+    id: 'CM-1098467',
+    tag: 'Live Conflict Search',
+    riskLevel: 'Medium',
+    jurisdiction: 'SDNY Federal',
+    leadPartner: 'A. Patel',
+    description: 'Smith v. Horizon Logistics (breach of contract)',
+    initiated: 'June 29, 2026 2:15 PM',
+    type: 'New Matter Intake',
+    client: 'Horizon Logistics Inc.',
+    matterNum: '0',
+    matterDesc: 'John Smith v. Horizon Logistics Inc. and Does 1-10',
+    initiator: 'Cosmos Cortex (auto-intake)',
+    status: 'Pending - Review',
+    notes: 'CM-1098467 Summons.pdf, Initial_Demand_Letter.pdf'
+  },
+  {
+    id: 'CM-1098468',
+    tag: 'Real Filing',
+    riskLevel: 'High',
+    jurisdiction: 'CA Superior - LA',
+    leadPartner: 'S. Goldberg',
+    description: 'Davis v. Statewide Insurance (bad faith claim)',
+    initiated: 'June 30, 2026 9:00 AM',
+    type: 'New Client/Matter Intake',
+    client: 'Statewide Insurance Co.',
+    matterNum: '0',
+    matterDesc: 'Marcus Davis v. Statewide Insurance Co.',
+    initiator: 'Jane Doe',
+    status: 'Approved',
+    notes: 'CM-1098468 Claim_File.pdf'
+  },
+  {
+    id: 'CM-1098469',
+    tag: 'Firm Book Load',
+    riskLevel: 'Low',
+    jurisdiction: 'Internal',
+    leadPartner: 'Firm Ops',
+    description: 'Aderant Extract 2026 Q2',
+    initiated: 'June 30, 2026 10:30 AM',
+    type: 'Bulk Conflict Update',
+    client: 'Internal - Firm Ops',
+    matterNum: 'N/A',
+    matterDesc: 'Quarterly Aderant data synchronization and conflict index update',
+    initiator: 'System Admin',
+    status: 'Completed',
+    notes: 'Aderant_Q2_Extract_Log.csv'
+  },
+  {
+    id: 'CM-1098470',
+    tag: 'Real Filing',
+    riskLevel: 'High',
+    jurisdiction: 'TX Dist. Harris Cty',
+    leadPartner: 'M. Chen',
+    description: 'Torres v. Apex Manufacturing (product liability)',
+    initiated: 'June 30, 2026 11:45 AM',
+    type: 'New Client/Matter Intake (RUSH)',
+    client: 'Apex Manufacturing Solutions',
+    matterNum: '0',
+    matterDesc: 'Maria Torres v. Apex Manufacturing Solutions, Regional Distributors LLC',
+    initiator: 'Cosmos Cortex (auto-intake)',
+    status: 'Draft - Intake',
+    notes: 'CM-1098470 Complaint_Product_Defect.pdf'
+  },
+  {
+    id: 'CM-1098471',
+    tag: 'Live Conflict Search',
+    riskLevel: 'Medium',
+    jurisdiction: 'FL Circuit - Miami',
+    leadPartner: 'R. Simmons',
+    description: 'Reynolds Estate (probate dispute)',
+    initiated: 'July 1, 2026 8:20 AM',
+    type: 'New Client Intake',
+    client: 'Reynolds Family Trust',
+    matterNum: '0',
+    matterDesc: 'Estate of Arthur Reynolds - Beneficiary Dispute',
+    initiator: 'John Smith',
+    status: 'Conflict Check',
+    notes: 'Trust_Documents_Redacted.pdf, Beneficiary_List.pdf'
+  },
+  {
+    id: 'CM-1098472',
+    tag: 'Real Filing',
+    riskLevel: 'Low',
+    jurisdiction: 'IL Circuit Court',
+    leadPartner: 'T. Jefferson',
+    description: 'Acme Corp v. Global Tech (IP Infringement)',
+    initiated: 'July 2, 2026 10:05 AM',
+    type: 'New Matter Intake',
+    client: 'Acme Corp',
+    matterNum: '0',
+    matterDesc: 'Acme Corp v. Global Tech Patent Infringement',
+    initiator: 'Alice Johnson',
+    status: 'Pending - Review',
+    notes: 'CM-1098472 Notice_of_Claim.pdf'
+  },
+  {
+    id: 'CM-1098473',
+    tag: 'Live Conflict Search',
+    riskLevel: 'Medium',
+    jurisdiction: 'NY State Supreme',
+    leadPartner: 'J. Harrison',
+    description: 'Rivera v. City of NY (personal injury)',
+    initiated: 'July 2, 2026 1:15 PM',
+    type: 'New Client Intake',
+    client: 'Hector Rivera',
+    matterNum: '0',
+    matterDesc: 'Rivera v. City of New York and MTA',
+    initiator: 'Cosmos Cortex (auto-intake)',
+    status: 'Draft - Intake',
+    notes: 'CM-1098473 Initial_Pleadings.pdf'
+  },
+  {
+    id: 'CM-1098474',
+    tag: 'Real Filing',
+    riskLevel: 'High',
+    jurisdiction: 'Delaware Chancery',
+    leadPartner: 'S. Goldberg',
+    description: 'Merger Dispute (Pinnacle & Vertex)',
+    initiated: 'July 3, 2026 9:30 AM',
+    type: 'New Matter Intake (RUSH)',
+    client: 'Pinnacle Holdings LLC',
+    matterNum: '0',
+    matterDesc: 'Pinnacle Holdings LLC v. Vertex Partners LP',
+    initiator: 'Jane Doe',
+    status: 'Conflict Check',
+    notes: 'CM-1098474 Merger_Agreement_Dispute.pdf'
+  },
+  {
+    id: 'CM-1098475',
+    tag: 'System Load',
+    riskLevel: 'Low',
+    jurisdiction: 'Internal',
+    leadPartner: 'Firm Ops',
+    description: 'Attorney Roster Update',
+    initiated: 'July 3, 2026 11:00 AM',
+    type: 'System Maintenance',
+    client: 'Internal - HR',
+    matterNum: 'N/A',
+    matterDesc: 'Monthly Attorney Roster Sync',
+    initiator: 'System Admin',
+    status: 'Completed',
+    notes: 'Roster_July2026.csv'
+  },
+  {
+    id: 'CM-1098476',
+    tag: 'Real Filing',
+    riskLevel: 'Medium',
+    jurisdiction: 'TX Dist. Dallas Cty',
+    leadPartner: 'M. Chen',
+    description: 'Bright Future Inc. (employment discrimination)',
+    initiated: 'July 5, 2026 8:45 AM',
+    type: 'New Client/Matter Intake',
+    client: 'Bright Future Inc.',
+    matterNum: '0',
+    matterDesc: 'Sarah Jenkins v. Bright Future Inc.',
+    initiator: 'Cosmos Cortex (auto-intake)',
+    status: 'Draft - Intake',
+    notes: 'CM-1098476 EEOC_Charge.pdf'
+  },
+  {
+    id: 'CM-1098477',
+    tag: 'Live Conflict Search',
+    riskLevel: 'High',
+    jurisdiction: 'SDNY Federal',
+    leadPartner: 'A. Patel',
+    description: 'Omega Financial (SEC investigation)',
+    initiated: 'July 5, 2026 10:20 AM',
+    type: 'New Matter Intake (RUSH)',
+    client: 'Omega Financial Group',
+    matterNum: '0',
+    matterDesc: 'SEC Inquiry into Omega Financial Group Q1 Trading',
+    initiator: 'John Smith',
+    status: 'Pending - Review',
+    notes: 'CM-1098477 SEC_Subpoena.pdf'
+  },
+  {
+    id: 'CM-1098478',
+    tag: 'Real Filing',
+    riskLevel: 'Low',
+    jurisdiction: 'FL Circuit - Tampa',
+    leadPartner: 'R. Simmons',
+    description: 'Gulf Coast Realty (contract dispute)',
+    initiated: 'July 6, 2026 2:10 PM',
+    type: 'New Matter Intake',
+    client: 'Gulf Coast Realty Advisors',
+    matterNum: '0',
+    matterDesc: 'Gulf Coast Realty v. Sunstate Builders',
+    initiator: 'Jane Doe',
+    status: 'Approved',
+    notes: 'CM-1098478 Commercial_Lease_Dispute.pdf'
+  },
+  {
+    id: 'CM-1098479',
+    tag: 'Live Conflict Search',
+    riskLevel: 'Medium',
+    jurisdiction: 'WA Superior - King',
+    leadPartner: 'T. Jefferson',
+    description: 'CloudNet (data breach class action)',
+    initiated: 'July 7, 2026 9:15 AM',
+    type: 'New Client Intake',
+    client: 'CloudNet Systems',
+    matterNum: '0',
+    matterDesc: 'Consumer Class Action re Data Breach',
+    initiator: 'Cosmos Cortex (auto-intake)',
+    status: 'Draft - Intake',
+    notes: 'CM-1098479 Class_Action_Complaint.pdf'
+  },
+  {
+    id: 'CM-1098480',
+    tag: 'Real Filing',
+    riskLevel: 'High',
+    jurisdiction: 'CA Superior - SF',
+    leadPartner: 'S. Goldberg',
+    description: 'BioTech Solutions (trade secret theft)',
+    initiated: 'July 7, 2026 4:00 PM',
+    type: 'New Matter Intake (RUSH)',
+    client: 'BioTech Solutions',
+    matterNum: '0',
+    matterDesc: 'BioTech Solutions v. Former Employees',
+    initiator: 'Alice Johnson',
+    status: 'Conflict Check',
+    notes: 'CM-1098480 TRO_Application.pdf'
+  }
+];
 
 function App() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
+  const [conflictItem, setConflictItem] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [viewMode, setViewMode] = useState(() => 
     typeof window !== 'undefined' && window.innerWidth < 768 ? 'card' : 'grid'
   );
+
+  const [data, setData] = useState(initialTableData);
+
+  const [intakeItem, setIntakeItem] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const intakeId = params.get('intake');
+      if (intakeId) {
+        return initialTableData.find(item => item.id === intakeId) || { id: intakeId };
+      }
+    }
+    return null;
+  });
+
+  const handleOpenIntake = (item) => {
+    setIntakeItem(item);
+    const url = new URL(window.location.href);
+    url.searchParams.set('intake', item.id);
+    window.history.pushState({ intakeId: item.id }, '', url.toString());
+  };
+
+  const handleBackFromIntake = () => {
+    if (new URLSearchParams(window.location.search).has('intake')) {
+      window.history.back();
+    } else {
+      setIntakeItem(null);
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const intakeId = params.get('intake');
+      if (intakeId) {
+        const found = data.find(item => item.id === intakeId) || initialTableData.find(item => item.id === intakeId) || { id: intakeId };
+        setIntakeItem(found);
+      } else {
+        setIntakeItem(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [data]);
   
   useEffect(() => {
     const handleResize = () => {
@@ -43,263 +334,23 @@ function App() {
   
   const pendingIntakes = 12; // Placeholder
   
+  const activeStepIndex = intakeItem ? 1 : 0;
   const steps = [
-    { label: 'Email in', completed: true },
-    { label: 'Intake', completed: true },
-    { label: 'Approval', completed: false, current: true },
-    { label: 'Conflict Search', completed: false },
-    { label: 'Conflict Review', completed: false },
-    { label: 'Decision', completed: false }
-  ];
-
-  const initialTableData = [
-    {
-      id: 'CM-1098466',
-      tag: 'Real Filing',
-      riskLevel: 'High',
-      jurisdiction: 'NY State Supreme',
-      leadPartner: 'J. Harrison',
-      description: 'Marchese v. New City Westchester (slip and fall) - default alleged',
-      initiated: 'June 29, 2026 1:38 PM',
-      type: 'New Client/Matter Intake (RUSH)',
-      client: 'K2 Claims Services, LLC',
-      matterNum: '0',
-      matterDesc: 'Nicolina Marchese v. New City Westchester Group LLC d/b/a Westchester Golf & Country Club',
-      initiator: 'Cosmos Cortex (auto-intake)',
-      status: 'Draft - Intake',
-      notes: 'CM-1098466 Email - new file assignment.pdf, CM-1098466 Complaint.pdf'
-    },
-    {
-      id: 'CM-1098467',
-      tag: 'Live Conflict Search',
-      riskLevel: 'Medium',
-      jurisdiction: 'SDNY Federal',
-      leadPartner: 'A. Patel',
-      description: 'Smith v. Horizon Logistics (breach of contract)',
-      initiated: 'June 29, 2026 2:15 PM',
-      type: 'New Matter Intake',
-      client: 'Horizon Logistics Inc.',
-      matterNum: '0',
-      matterDesc: 'John Smith v. Horizon Logistics Inc. and Does 1-10',
-      initiator: 'Cosmos Cortex (auto-intake)',
-      status: 'Pending - Review',
-      notes: 'CM-1098467 Summons.pdf, Initial_Demand_Letter.pdf'
-    },
-    {
-      id: 'CM-1098468',
-      tag: 'Real Filing',
-      riskLevel: 'High',
-      jurisdiction: 'CA Superior - LA',
-      leadPartner: 'S. Goldberg',
-      description: 'Davis v. Statewide Insurance (bad faith claim)',
-      initiated: 'June 30, 2026 9:00 AM',
-      type: 'New Client/Matter Intake',
-      client: 'Statewide Insurance Co.',
-      matterNum: '0',
-      matterDesc: 'Marcus Davis v. Statewide Insurance Co.',
-      initiator: 'Jane Doe',
-      status: 'Approved',
-      notes: 'CM-1098468 Claim_File.pdf'
-    },
-    {
-      id: 'CM-1098469',
-      tag: 'Firm Book Load',
-      riskLevel: 'Low',
-      jurisdiction: 'Internal',
-      leadPartner: 'Firm Ops',
-      description: 'Aderant Extract 2026 Q2',
-      initiated: 'June 30, 2026 10:30 AM',
-      type: 'Bulk Conflict Update',
-      client: 'Internal - Firm Ops',
-      matterNum: 'N/A',
-      matterDesc: 'Quarterly Aderant data synchronization and conflict index update',
-      initiator: 'System Admin',
-      status: 'Completed',
-      notes: 'Aderant_Q2_Extract_Log.csv'
-    },
-    {
-      id: 'CM-1098470',
-      tag: 'Real Filing',
-      riskLevel: 'High',
-      jurisdiction: 'TX Dist. Harris Cty',
-      leadPartner: 'M. Chen',
-      description: 'Torres v. Apex Manufacturing (product liability)',
-      initiated: 'June 30, 2026 11:45 AM',
-      type: 'New Client/Matter Intake (RUSH)',
-      client: 'Apex Manufacturing Solutions',
-      matterNum: '0',
-      matterDesc: 'Maria Torres v. Apex Manufacturing Solutions, Regional Distributors LLC',
-      initiator: 'Cosmos Cortex (auto-intake)',
-      status: 'Draft - Intake',
-      notes: 'CM-1098470 Complaint_Product_Defect.pdf'
-    },
-    {
-      id: 'CM-1098471',
-      tag: 'Live Conflict Search',
-      riskLevel: 'Medium',
-      jurisdiction: 'FL Circuit - Miami',
-      leadPartner: 'R. Simmons',
-      description: 'Reynolds Estate (probate dispute)',
-      initiated: 'July 1, 2026 8:20 AM',
-      type: 'New Client Intake',
-      client: 'Reynolds Family Trust',
-      matterNum: '0',
-      matterDesc: 'Estate of Arthur Reynolds - Beneficiary Dispute',
-      initiator: 'John Smith',
-      status: 'Conflict Check',
-      notes: 'Trust_Documents_Redacted.pdf, Beneficiary_List.pdf'
-    },
-    {
-      id: 'CM-1098472',
-      tag: 'Real Filing',
-      riskLevel: 'Low',
-      jurisdiction: 'IL Circuit Court',
-      leadPartner: 'T. Jefferson',
-      description: 'Acme Corp v. Global Tech (IP Infringement)',
-      initiated: 'July 2, 2026 10:05 AM',
-      type: 'New Matter Intake',
-      client: 'Acme Corp',
-      matterNum: '0',
-      matterDesc: 'Acme Corp v. Global Tech Patent Infringement',
-      initiator: 'Alice Johnson',
-      status: 'Pending - Review',
-      notes: 'CM-1098472 Notice_of_Claim.pdf'
-    },
-    {
-      id: 'CM-1098473',
-      tag: 'Live Conflict Search',
-      riskLevel: 'Medium',
-      jurisdiction: 'NY State Supreme',
-      leadPartner: 'J. Harrison',
-      description: 'Rivera v. City of NY (personal injury)',
-      initiated: 'July 2, 2026 1:15 PM',
-      type: 'New Client Intake',
-      client: 'Hector Rivera',
-      matterNum: '0',
-      matterDesc: 'Rivera v. City of New York and MTA',
-      initiator: 'Cosmos Cortex (auto-intake)',
-      status: 'Draft - Intake',
-      notes: 'CM-1098473 Initial_Pleadings.pdf'
-    },
-    {
-      id: 'CM-1098474',
-      tag: 'Real Filing',
-      riskLevel: 'High',
-      jurisdiction: 'Delaware Chancery',
-      leadPartner: 'S. Goldberg',
-      description: 'Merger Dispute (Pinnacle & Vertex)',
-      initiated: 'July 3, 2026 9:30 AM',
-      type: 'New Matter Intake (RUSH)',
-      client: 'Pinnacle Holdings LLC',
-      matterNum: '0',
-      matterDesc: 'Pinnacle Holdings LLC v. Vertex Partners LP',
-      initiator: 'Jane Doe',
-      status: 'Conflict Check',
-      notes: 'CM-1098474 Merger_Agreement_Dispute.pdf'
-    },
-    {
-      id: 'CM-1098475',
-      tag: 'System Load',
-      riskLevel: 'Low',
-      jurisdiction: 'Internal',
-      leadPartner: 'Firm Ops',
-      description: 'Attorney Roster Update',
-      initiated: 'July 3, 2026 11:00 AM',
-      type: 'System Maintenance',
-      client: 'Internal - HR',
-      matterNum: 'N/A',
-      matterDesc: 'Monthly Attorney Roster Sync',
-      initiator: 'System Admin',
-      status: 'Completed',
-      notes: 'Roster_July2026.csv'
-    },
-    {
-      id: 'CM-1098476',
-      tag: 'Real Filing',
-      riskLevel: 'Medium',
-      jurisdiction: 'TX Dist. Dallas Cty',
-      leadPartner: 'M. Chen',
-      description: 'Bright Future Inc. (employment discrimination)',
-      initiated: 'July 5, 2026 8:45 AM',
-      type: 'New Client/Matter Intake',
-      client: 'Bright Future Inc.',
-      matterNum: '0',
-      matterDesc: 'Sarah Jenkins v. Bright Future Inc.',
-      initiator: 'Cosmos Cortex (auto-intake)',
-      status: 'Draft - Intake',
-      notes: 'CM-1098476 EEOC_Charge.pdf'
-    },
-    {
-      id: 'CM-1098477',
-      tag: 'Live Conflict Search',
-      riskLevel: 'High',
-      jurisdiction: 'SDNY Federal',
-      leadPartner: 'A. Patel',
-      description: 'Omega Financial (SEC investigation)',
-      initiated: 'July 5, 2026 10:20 AM',
-      type: 'New Matter Intake (RUSH)',
-      client: 'Omega Financial Group',
-      matterNum: '0',
-      matterDesc: 'SEC Inquiry into Omega Financial Group Q1 Trading',
-      initiator: 'John Smith',
-      status: 'Pending - Review',
-      notes: 'CM-1098477 SEC_Subpoena.pdf'
-    },
-    {
-      id: 'CM-1098478',
-      tag: 'Real Filing',
-      riskLevel: 'Low',
-      jurisdiction: 'FL Circuit - Tampa',
-      leadPartner: 'R. Simmons',
-      description: 'Gulf Coast Realty (contract dispute)',
-      initiated: 'July 6, 2026 2:10 PM',
-      type: 'New Matter Intake',
-      client: 'Gulf Coast Realty Advisors',
-      matterNum: '0',
-      matterDesc: 'Gulf Coast Realty v. Sunstate Builders',
-      initiator: 'Jane Doe',
-      status: 'Approved',
-      notes: 'CM-1098478 Commercial_Lease_Dispute.pdf'
-    },
-    {
-      id: 'CM-1098479',
-      tag: 'Live Conflict Search',
-      riskLevel: 'Medium',
-      jurisdiction: 'WA Superior - King',
-      leadPartner: 'T. Jefferson',
-      description: 'CloudNet (data breach class action)',
-      initiated: 'July 7, 2026 9:15 AM',
-      type: 'New Client Intake',
-      client: 'CloudNet Systems',
-      matterNum: '0',
-      matterDesc: 'Consumer Class Action re Data Breach',
-      initiator: 'Cosmos Cortex (auto-intake)',
-      status: 'Draft - Intake',
-      notes: 'CM-1098479 Class_Action_Complaint.pdf'
-    },
-    {
-      id: 'CM-1098480',
-      tag: 'Real Filing',
-      riskLevel: 'High',
-      jurisdiction: 'CA Superior - SF',
-      leadPartner: 'S. Goldberg',
-      description: 'BioTech Solutions (trade secret theft)',
-      initiated: 'July 7, 2026 4:00 PM',
-      type: 'New Matter Intake (RUSH)',
-      client: 'BioTech Solutions',
-      matterNum: '0',
-      matterDesc: 'BioTech Solutions v. Former Employees',
-      initiator: 'Alice Johnson',
-      status: 'Conflict Check',
-      notes: 'CM-1098480 TRO_Application.pdf'
-    }
-  ];
-
-  const [data, setData] = useState(initialTableData);
+    { label: 'Email in' },
+    { label: 'Intake' },
+    { label: 'Approval' },
+    { label: 'Conflict Search' },
+    { label: 'Conflict Review' },
+    { label: 'Decision' }
+  ].map((s, i) => ({
+    ...s,
+    completed: i < activeStepIndex,
+    current: i === activeStepIndex,
+  }));
 
   const visibleColumns = [
     'Workflow ID', 'Client', 'Description', 'Initiated', 'Status', 
-    'Open / Intake', 'Intake Summary', 'Conflict Analysis', 'Action'
+    'Conflict Report', 'Action'
   ];
 
   // Pagination Logic
@@ -326,26 +377,16 @@ function App() {
       {/* Top Edge-to-Edge Navbar */}
       <nav className="w-full bg-teal-900 text-white px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center shrink-0 shadow-md z-20">
         <div className="flex items-center gap-3">
-          <div className="bg-white/10 p-1.5 rounded">
-            <Inbox className="text-emerald-400" size={20} />
-          </div>
+        
           <h1 className="text-xl font-bold text-white tracking-wide flex items-center">
-            CosmosHelios <span className="font-light text-emerald-400 ml-1">Intake</span>
+            <img src={LogoCh} alt="Logo" className="logo-ch" /> <span className="font-light text-white-400 ml-1">Intake</span>
           </h1>
           <div className="hidden sm:block h-5 w-px bg-white/20 mx-2"></div>
           <span className="hidden sm:block text-[11px] font-semibold text-white/80 uppercase tracking-widest mt-1">
             New Business Intake <span className="text-emerald-400 lowercase mx-1 font-normal tracking-normal">|</span> Auto-filled by Cortex
           </span>
         </div>
-        <div className="flex items-center gap-3 mt-3 sm:mt-0">
-          <span className="text-[10px] font-bold tracking-widest uppercase text-emerald-400 border border-emerald-400/40 px-2.5 py-1 rounded-sm bg-black/20 shadow-inner">
-            Demo v3.10
-          </span>
-          <span className="text-[10px] font-bold tracking-widest uppercase text-white bg-teal-900 border border-teal-800 px-2.5 py-1 rounded-sm shadow-sm flex items-center gap-1">
-            <AlertTriangle size={10} className="text-white" />
-            Confidential
-          </span>
-        </div>
+
       </nav>
 
       {/* Main Content Area */}
@@ -354,9 +395,11 @@ function App() {
         {/* Isolated Workflow Stepper */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-4 flex flex-col xl:flex-row justify-between items-start xl:items-center shrink-0 gap-4">
           <div className="flex items-center gap-3">
-            <h2 className="text-sm font-bold text-teal-900 uppercase tracking-wider">Workflow Inbox</h2>
+            <h2 className="text-sm font-bold text-teal-900 uppercase tracking-wider">
+              {intakeItem ? 'Matter Intake Studio' : 'Workflow Inbox'}
+            </h2>
             <span className="bg-teal-600/10 text-teal-900 border border-teal-600/20 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
-              {pendingIntakes} Pending Intakes
+              {intakeItem ? intakeItem.id : `${pendingIntakes} Pending Intakes`}
             </span>
           </div>
           <div className="flex items-center gap-1.5 md:gap-4 w-full xl:w-auto">
@@ -385,323 +428,334 @@ function App() {
           </div>
         </div>
 
-        {/* Control Bar - Actions & Data Sources side-by-side */}
-        <div className="flex flex-col xl:flex-row gap-4 mb-4 shrink-0">
-          
-          {/* Actions with Extra Borders */}
-          <div className="flex gap-3 w-full xl:w-auto">
-            <button className="flex-1 xl:flex-none bg-white hover:bg-teal-600/5 text-teal-900 font-bold py-2 px-5 rounded-lg flex items-center justify-center gap-2 transition-all text-sm whitespace-nowrap border-[2px] border-teal-600 shadow-sm group">
-              <Upload size={16} className="text-teal-600 group-hover:scale-110 transition-transform" />
-              New Intake <span className="font-normal text-xs opacity-70 hidden sm:inline">(try your own file)</span>
-            </button>
-            <label className="flex-1 xl:flex-none bg-white hover:bg-teal-900/5 text-teal-900 font-bold py-2 px-5 rounded-lg flex items-center justify-center gap-2 transition-all text-sm whitespace-nowrap border-[2px] border-teal-900 shadow-sm group cursor-pointer">
-              <input type="file" className="hidden" accept=".csv,.xlsx" />
-              <Database size={16} className="text-teal-900 group-hover:scale-110 transition-transform" />
-              Load Aderant Book
-            </label>
+        {intakeItem ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-1 flex flex-col min-h-[700px]">
+            <IntakePage matter={intakeItem} onBack={handleBackFromIntake} theme="teal" />
           </div>
-
-          {/* Horizontal Context Bar (Desktop) & Data Pipeline (Mobile) */}
-          <div className="w-full xl:flex-1 bg-teal-900 rounded-xl shadow-sm border border-teal-900 flex flex-col items-start p-4 md:p-2.5">
-            
-            {/* --- DESKTOP VIEW --- */}
-            <div className="hidden md:flex flex-row items-center gap-5 w-full">
-              {/* Recessed Label */}
-              <div className="bg-black/20 px-4 py-2 rounded-lg border border-white/5 shadow-inner flex items-center shrink-0">
-                <span className="text-[11px] font-medium text-white tracking-wide">
-                  Where the data comes from:
-                </span>
-              </div>
+        ) : (
+          <>
+            {/* Control Bar - Actions & Data Sources side-by-side */}
+            <div className="flex flex-col xl:flex-row gap-4 mb-4 shrink-0">
               
-              <div className="flex items-center gap-6 w-full justify-around px-2 border-l border-white/10 pl-6">
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/10 p-2 rounded-lg border border-white/5">
-                    <FileText className="text-emerald-400" size={16} />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">Real Filing</span>
-                    <span className="text-xs text-slate-300 font-medium">Verified court docs</span>
-                  </div>
-                </div>
-
-                <div className="w-px h-8 bg-slate-700"></div>
-
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/10 p-2 rounded-lg border border-white/5">
-                    <ShieldAlert className="text-emerald-400" size={16} />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">Live Conflict Search</span>
-                    <span className="text-xs text-slate-300 font-medium">491 history records</span>
-                  </div>
-                </div>
-
-                <div className="w-px h-8 bg-slate-700"></div>
-
-                <div className="flex items-center gap-3">
-                  <div className="bg-white/10 p-2 rounded-lg border border-white/5">
-                    <Database className="text-emerald-400" size={16} />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs font-bold text-white uppercase tracking-wider">Firm Book</span>
-                    <span className="text-xs text-slate-300 font-medium">CS&K Aderant extract</span>
-                  </div>
-                </div>
+              {/* Actions with Extra Borders */}
+              <div className="flex gap-3 w-full xl:w-auto">
+                <button className="flex-1 xl:flex-none bg-white hover:bg-teal-600/5 text-teal-900 font-bold py-2 px-5 rounded-lg flex items-center justify-center gap-2 transition-all text-sm whitespace-nowrap border-[2px] border-teal-600 shadow-sm group">
+                  <Upload size={16} className="text-teal-600 group-hover:scale-110 transition-transform" />
+                  New Intake <span className="font-normal text-xs opacity-70 hidden sm:inline">(try your own file)</span>
+                </button>
+                <label className="flex-1 xl:flex-none bg-white hover:bg-teal-900/5 text-teal-900 font-bold py-2 px-5 rounded-lg flex items-center justify-center gap-2 transition-all text-sm whitespace-nowrap border-[2px] border-teal-900 shadow-sm group cursor-pointer">
+                  <input type="file" className="hidden" accept=".csv,.xlsx" />
+                  <Database size={16} className="text-teal-900 group-hover:scale-110 transition-transform" />
+                  Load Aderant Book
+                </label>
               </div>
-            </div>
 
-            {/* --- MOBILE VIEW (Vertical Legend) --- */}
-            <div className="flex md:hidden flex-col w-full">
-              <div className="bg-black/20 px-3 py-2 rounded-lg border border-white/5 shadow-inner flex items-center shrink-0 w-full mb-3">
-                <span className="text-[10px] font-medium text-white tracking-wide">
-                  Where the data comes from:
-                </span>
-              </div>
-              
-              <div className="flex flex-col gap-2">
-                {/* Item 1 */}
-                <div className="bg-white/10 p-2.5 rounded-lg border border-white/5 flex items-center gap-3 w-full shadow-sm">
-                  <FileText className="text-emerald-400 shrink-0" size={16} />
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Real Filing</span>
-                    <span className="text-[9px] text-slate-300 font-medium">Verified court docs</span>
+              {/* Horizontal Context Bar (Desktop) & Data Pipeline (Mobile) */}
+              <div className="w-full xl:flex-1 bg-teal-900 rounded-xl shadow-sm border border-teal-900 flex flex-col items-start p-4 md:p-2.5">
+                
+                {/* --- DESKTOP VIEW --- */}
+                <div className="hidden md:flex flex-row items-center gap-5 w-full">
+                  {/* Recessed Label */}
+                  <div className="bg-black/20 px-4 py-2 rounded-lg border border-white/5 shadow-inner flex items-center shrink-0">
+                    <span className="text-[11px] font-medium text-white tracking-wide">
+                      Where the data comes from:
+                    </span>
                   </div>
-                </div>
-
-                {/* Item 2 */}
-                <div className="bg-white/10 p-2.5 rounded-lg border border-white/5 flex items-center gap-3 w-full shadow-sm">
-                  <ShieldAlert className="text-emerald-400 shrink-0" size={16} />
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Live Conflict Search</span>
-                    <span className="text-[9px] text-slate-300 font-medium">491 history records</span>
-                  </div>
-                </div>
-
-                {/* Item 3 */}
-                <div className="bg-white/10 p-2.5 rounded-lg border border-white/5 flex items-center gap-3 w-full shadow-sm">
-                  <Database className="text-emerald-400 shrink-0" size={16} />
-                  <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-white uppercase tracking-wider">Firm Book</span>
-                    <span className="text-[9px] text-slate-300 font-medium">CS&K Aderant extract</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Grid/Card Container */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col mb-6">
-          <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50 shrink-0 rounded-t-xl">
-            <div className="flex items-center gap-3">
-              <h2 className="text-sm font-bold text-teal-900 uppercase tracking-wider">Intake Pipeline Data</h2>
-            </div>
-            <div className="flex bg-gray-200/60 rounded-lg p-1">
-               <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-teal-900' : 'text-gray-500 hover:text-gray-700'}`} title="Table View"><List size={16} /></button>
-               <button onClick={() => setViewMode('card')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'card' ? 'bg-white shadow-sm text-teal-900' : 'text-gray-500 hover:text-gray-700'}`} title="Card View"><LayoutGrid size={16} /></button>
-            </div>
-          </div>
-          
-          <div className="overflow-x-auto">
-            {viewMode === 'grid' ? (
-            <table className="w-full text-left border-collapse">
-              <thead className="sticky top-0 z-20 bg-gray-50 shadow-sm border-b border-gray-200">
-                <tr>
-                  {visibleColumns.map((col, idx) => (
-                    <th key={idx} className={`p-3 text-xs font-bold uppercase tracking-wider text-gray-500 whitespace-nowrap bg-gray-50 ${col === 'Action' ? 'sticky right-0 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.1)] z-30' : ''}`}>
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {currentTableData.length > 0 ? currentTableData.map((row) => (
-                  <tr key={row.id} className="border-b border-gray-100 hover:bg-teal-600/10/30 transition-colors">
-                    <td className="p-3 text-sm font-semibold text-teal-900 whitespace-nowrap">
-                      {row.id}
-                    </td>
-                    <td className="p-3 text-sm text-black font-medium whitespace-nowrap">{row.client}</td>
-                    <td className="p-3">
-                      <div className="flex flex-col items-start gap-1.5">
-                        <span className="text-sm text-black max-w-[250px] truncate" title={row.description}>
-                          {row.description}
-                        </span>
-                        {row.tag && (
-                          <span 
-                            className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-help shadow-sm ${
-                              row.tag === 'Real Filing' ? 'bg-teal-600/10 text-[#b08b3e] border-teal-600/30' :
-                              row.tag === 'Live Conflict Search' ? 'bg-teal-900/10 text-teal-900 border-teal-900/30' :
-                              'bg-slate-800/5 text-teal-800 border-teal-800/20'
-                            }`}
-                            title={
-                              row.tag === 'Real Filing' ? 'Verified public court documents' :
-                              row.tag === 'Live Conflict Search' ? '491 history records scanned' :
-                              row.tag === 'Firm Book Load' ? 'CS&K Aderant extract' :
-                              'Internal system automation'
-                            }
-                          >
-                            {row.tag}
-                          </span>
-                        )}
+                  
+                  <div className="flex items-center gap-6 w-full justify-around px-2 border-l border-white/10 pl-6">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-white/10 p-2 rounded-lg border border-white/5">
+                        <FileText className="text-emerald-400" size={16} />
                       </div>
-                    </td>
-                    <td className="p-3 text-sm text-black whitespace-nowrap">{row.initiated}</td>
-                    <td className="p-3">
-                      <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-bold tracking-wide whitespace-nowrap">{row.status}</span>
-                    </td>
-                    <td className="p-3">
-                      <a href="#" className="text-teal-600 hover:text-teal-700 font-semibold text-xs whitespace-nowrap underline underline-offset-2">
-                        Open / Intake
-                      </a>
-                    </td>
-                    <td className="p-3">
-                      <a href="#" className="text-teal-900 hover:text-teal-600 font-semibold text-xs whitespace-nowrap flex items-center gap-1 transition-colors">
-                        <FileText size={14} />
-                        Intake Summary
-                      </a>
-                    </td>
-                    <td className="p-3">
-                      <button className="bg-teal-900 hover:bg-brand-dark text-white text-[11px] uppercase tracking-wide font-bold py-1.5 px-2.5 rounded whitespace-nowrap transition-colors flex items-center gap-1 shadow-sm">
-                        <ShieldAlert size={12} />
-                        Conflict Analysis
-                      </button>
-                    </td>
-                    <td className="p-3 sticky right-0 bg-white shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)] border-l border-gray-100 group-hover:bg-teal-600/10/30">
-                      <div className="flex items-center gap-2 min-w-max">
-                        <button 
-                          onClick={() => setSelectedRow(row)}
-                          className="text-teal-900 bg-teal-900/5 hover:bg-teal-600 hover:text-white transition-colors flex items-center justify-center p-1.5 rounded"
-                          title="View Details"
-                        >
-                          <Eye size={18} />
-                        </button>
-                        <button 
-                          onClick={() => setRowToDelete(row)}
-                          className="text-teal-900 bg-teal-900/10 hover:bg-teal-900 hover:text-white transition-colors flex items-center justify-center p-1.5 rounded"
-                          title="Delete Record"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )) : (
-                  <tr>
-                    <td colSpan={visibleColumns.length} className="p-8 text-center text-gray-500">
-                      No records found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 bg-gray-50/30">
-                {currentTableData.length > 0 ? currentTableData.map((row) => (
-                  <div key={row.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_15px_-4px_rgba(201,164,86,0.15)] transition-all flex flex-col relative group overflow-hidden">
-                    <div className="flex justify-between items-start mb-2">
-                      <span className="text-xs font-black font-mono text-teal-900 bg-teal-900/5 px-2 py-0.5 rounded">{row.id}</span>
-                      <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 border border-gray-100">
-                        <button 
-                          onClick={() => setSelectedRow(row)}
-                          className="text-teal-900 hover:bg-teal-900/10 transition-colors p-1.5 rounded"
-                          title="View Details"
-                        >
-                          <Eye size={16} />
-                        </button>
-                        <button 
-                          onClick={() => setRowToDelete(row)}
-                          className="text-teal-900 hover:bg-teal-900/10 transition-colors p-1.5 rounded"
-                          title="Delete Record"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-white uppercase tracking-wider">Real Filing</span>
+                        <span className="text-xs text-slate-300 font-medium">Verified court docs</span>
                       </div>
                     </div>
-                    
-                    <h3 className="font-extrabold text-gray-900 text-base mb-1">{row.client}</h3>
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-3 flex-1">{row.description}</p>
-                    
-                    {row.tag && (
-                      <div className="mb-4">
-                        <span 
-                          className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-help shadow-sm ${
-                            row.tag === 'Real Filing' ? 'bg-teal-600/10 text-[#b08b3e] border-teal-600/30' :
-                            row.tag === 'Live Conflict Search' ? 'bg-teal-900/10 text-teal-900 border-teal-900/30' :
-                            'bg-slate-800/5 text-teal-800 border-teal-800/20'
-                          }`}
-                        >
-                          {row.tag}
-                        </span>
+
+                    <div className="w-px h-8 bg-slate-700"></div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="bg-white/10 p-2 rounded-lg border border-white/5">
+                        <ShieldAlert className="text-emerald-400" size={16} />
                       </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-white uppercase tracking-wider">Live Conflict Search</span>
+                        <span className="text-xs text-slate-300 font-medium">491 history records</span>
+                      </div>
+                    </div>
+
+                    <div className="w-px h-8 bg-slate-700"></div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="bg-white/10 p-2 rounded-lg border border-white/5">
+                        <Database className="text-emerald-400" size={16} />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-white uppercase tracking-wider">Firm Book</span>
+                        <span className="text-xs text-slate-300 font-medium">CS&K Aderant extract</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* --- MOBILE VIEW (Vertical Legend) --- */}
+                <div className="flex md:hidden flex-col w-full">
+                  <div className="bg-black/20 px-3 py-2 rounded-lg border border-white/5 shadow-inner flex items-center shrink-0 w-full mb-3">
+                    <span className="text-[10px] font-medium text-white tracking-wide">
+                      Where the data comes from:
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    {/* Item 1 */}
+                    <div className="bg-white/10 p-2.5 rounded-lg border border-white/5 flex items-center gap-3 w-full shadow-sm">
+                      <FileText className="text-emerald-400 shrink-0" size={16} />
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">Real Filing</span>
+                        <span className="text-[9px] text-slate-300 font-medium">Verified court docs</span>
+                      </div>
+                    </div>
+
+                    {/* Item 2 */}
+                    <div className="bg-white/10 p-2.5 rounded-lg border border-white/5 flex items-center gap-3 w-full shadow-sm">
+                      <ShieldAlert className="text-emerald-400 shrink-0" size={16} />
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">Live Conflict Search</span>
+                        <span className="text-[9px] text-slate-300 font-medium">491 history records</span>
+                      </div>
+                    </div>
+
+                    {/* Item 3 */}
+                    <div className="bg-white/10 p-2.5 rounded-lg border border-white/5 flex items-center gap-3 w-full shadow-sm">
+                      <Database className="text-emerald-400 shrink-0" size={16} />
+                      <div className="flex flex-col">
+                        <span className="text-[10px] font-bold text-white uppercase tracking-wider">Firm Book</span>
+                        <span className="text-[9px] text-slate-300 font-medium">CS&K Aderant extract</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Grid/Card Container */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col mb-6">
+              <div className="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50 shrink-0 rounded-t-xl">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-sm font-bold text-teal-900 uppercase tracking-wider">Intake Pipeline Data</h2>
+                </div>
+                <div className="flex bg-gray-200/60 rounded-lg p-1">
+                   <button onClick={() => setViewMode('grid')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'grid' ? 'bg-white shadow-sm text-teal-900' : 'text-gray-500 hover:text-gray-700'}`} title="Table View"><List size={16} /></button>
+                   <button onClick={() => setViewMode('card')} className={`p-1.5 rounded-md transition-colors ${viewMode === 'card' ? 'bg-white shadow-sm text-teal-900' : 'text-gray-500 hover:text-gray-700'}`} title="Card View"><LayoutGrid size={16} /></button>
+                </div>
+              </div>
+              
+              <div className="overflow-x-auto">
+                {viewMode === 'grid' ? (
+                <table className="w-full text-left border-collapse">
+                  <thead className="sticky top-0 z-20 bg-gray-50 shadow-sm border-b border-gray-200">
+                    <tr>
+                      {visibleColumns.map((col, idx) => (
+                        <th key={idx} className={`p-3 text-xs font-bold uppercase tracking-wider text-gray-500 whitespace-nowrap bg-gray-50 ${col === 'Action' ? 'sticky right-0 shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.1)] z-30' : ''}`}>
+                          {col}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {currentTableData.length > 0 ? currentTableData.map((row) => (
+                      <tr key={row.id} className="border-b border-gray-100 hover:bg-teal-600/10/30 transition-colors">
+                        <td className="p-3 text-sm font-semibold text-teal-900 whitespace-nowrap">
+                          <button
+                            onClick={() => handleOpenIntake(row)}
+                            className="text-teal-800 hover:text-teal-950 font-bold hover:underline cursor-pointer transition-colors text-left"
+                            title="Open Intake Page"
+                          >
+                            {row.id}
+                          </button>
+                        </td>
+                        <td className="p-3 text-sm text-black font-medium whitespace-nowrap">{row.client}</td>
+                        <td className="p-3">
+                          <div className="flex flex-col items-start gap-1.5">
+                            <span className="text-sm text-black max-w-[250px] truncate" title={row.description}>
+                              {row.description}
+                            </span>
+                            {row.tag && (
+                              <span 
+                                className={`inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-help shadow-sm ${
+                                  row.tag === 'Real Filing' ? 'bg-teal-600/10 text-[#b08b3e] border-teal-600/30' :
+                                  row.tag === 'Live Conflict Search' ? 'bg-teal-900/10 text-teal-900 border-teal-900/30' :
+                                  'bg-slate-800/5 text-teal-800 border-teal-800/20'
+                                }`}
+                                title={
+                                  row.tag === 'Real Filing' ? 'Verified public court documents' :
+                                  row.tag === 'Live Conflict Search' ? '491 history records scanned' :
+                                  row.tag === 'Firm Book Load' ? 'CS&K Aderant extract' :
+                                  'Internal system automation'
+                                }
+                              >
+                                {row.tag}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="p-3 text-sm text-black whitespace-nowrap">{row.initiated}</td>
+                        <td className="p-3">
+                          <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-md text-xs font-bold tracking-wide whitespace-nowrap">{row.status}</span>
+                        </td>
+                        <td className="p-3">
+                          <button 
+                            onClick={() => setConflictItem(row)}
+                            className="bg-teal-900 hover:bg-brand-dark text-white text-[11px] uppercase tracking-wide font-bold py-1.5 px-2.5 rounded whitespace-nowrap transition-colors flex items-center gap-1 shadow-sm cursor-pointer"
+                          >
+                            <ShieldAlert size={12} />
+                            Conflict Report
+                          </button>
+                        </td>
+                        <td className="p-3 sticky right-0 bg-white shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)] border-l border-gray-100 group-hover:bg-teal-600/10/30">
+                          <div className="flex items-center gap-2 min-w-max">
+                            <button 
+                              onClick={() => setSelectedRow(row)}
+                              className="text-teal-900 bg-teal-900/5 hover:bg-teal-600 hover:text-white transition-colors flex items-center justify-center p-1.5 rounded"
+                              title="View Details"
+                            >
+                              <Eye size={18} />
+                            </button>
+                            <button 
+                              onClick={() => setRowToDelete(row)}
+                              className="text-teal-900 bg-teal-900/10 hover:bg-teal-900 hover:text-white transition-colors flex items-center justify-center p-1.5 rounded"
+                              title="Delete Record"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )) : (
+                      <tr>
+                        <td colSpan={visibleColumns.length} className="p-8 text-center text-gray-500">
+                          No records found.
+                        </td>
+                      </tr>
                     )}
-                    
-                    <div className="flex flex-col gap-3 mt-auto pt-3 border-t border-gray-100">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[11px] text-gray-500 flex items-center gap-1 font-medium"><Clock size={12}/> {row.initiated}</span>
-                        <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md text-[10px] font-bold tracking-wide uppercase">{row.status}</span>
-                      </div>
-                      
-                      <div className="flex justify-between items-center mt-1">
-                        <a href="#" className="text-teal-600 hover:text-teal-700 font-semibold text-xs underline underline-offset-2">Open / Intake</a>
-                        <div className="flex gap-2">
-                           <button className="bg-gray-100 hover:bg-gray-200 text-teal-900 p-1.5 rounded transition-colors" title="Intake Summary">
-                             <FileText size={14} />
-                           </button>
-                           <button className="bg-teal-900 hover:bg-[#08152b] text-white p-1.5 rounded transition-colors shadow-sm" title="Conflict Analysis">
-                             <ShieldAlert size={14} />
-                           </button>
+                  </tbody>
+                </table>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 p-4 bg-gray-50/30">
+                    {currentTableData.length > 0 ? currentTableData.map((row) => (
+                      <div key={row.id} className="bg-white border border-gray-200 rounded-xl p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_15px_-4px_rgba(201,164,86,0.15)] transition-all flex flex-col relative group overflow-hidden">
+                        <div className="flex justify-between items-start mb-2">
+                          <button 
+                            onClick={() => handleOpenIntake(row)}
+                            className="text-xs font-black font-mono text-teal-900 bg-teal-900/5 hover:bg-teal-900/15 hover:underline px-2 py-0.5 rounded cursor-pointer transition-colors"
+                            title="Open Intake Page"
+                          >
+                            {row.id}
+                          </button>
+                          <div className="flex items-center gap-1 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 border border-gray-100">
+                            <button 
+                              onClick={() => setSelectedRow(row)}
+                              className="text-teal-900 hover:bg-teal-900/10 transition-colors p-1.5 rounded"
+                              title="View Details"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            <button 
+                              onClick={() => setRowToDelete(row)}
+                              className="text-teal-900 hover:bg-teal-900/10 transition-colors p-1.5 rounded"
+                              title="Delete Record"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <h3 className="font-extrabold text-gray-900 text-base mb-1">{row.client}</h3>
+                        <p className="text-sm text-gray-600 line-clamp-2 mb-3 flex-1">{row.description}</p>
+                        
+                        {row.tag && (
+                          <div className="mb-4">
+                            <span 
+                              className={`inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border cursor-help shadow-sm ${
+                                row.tag === 'Real Filing' ? 'bg-teal-600/10 text-[#b08b3e] border-teal-600/30' :
+                                row.tag === 'Live Conflict Search' ? 'bg-teal-900/10 text-teal-900 border-teal-900/30' :
+                                'bg-slate-800/5 text-teal-800 border-teal-800/20'
+                              }`}
+                            >
+                              {row.tag}
+                            </span>
+                          </div>
+                        )}
+                        
+                        <div className="flex flex-col gap-3 mt-auto pt-3 border-t border-gray-100">
+                          <div className="flex justify-between items-center">
+                            <span className="text-[11px] text-gray-500 flex items-center gap-1 font-medium"><Clock size={12}/> {row.initiated}</span>
+                            <span className="px-2 py-0.5 bg-gray-100 text-gray-700 rounded-md text-[10px] font-bold tracking-wide uppercase">{row.status}</span>
+                          </div>
+                          
+                          <div className="flex justify-end items-center mt-1">
+                            <button 
+                              onClick={() => setConflictItem(row)}
+                              className="bg-teal-900 hover:bg-[#08152b] text-white py-1 px-2.5 rounded text-xs font-semibold flex items-center gap-1 transition-colors shadow-sm cursor-pointer" 
+                              title="Conflict Report"
+                            >
+                              <ShieldAlert size={13} />
+                              Conflict Report
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="col-span-full p-8 text-center text-gray-500">
-                    No records found.
+                    )) : (
+                      <div className="col-span-full p-8 text-center text-gray-500">
+                        No records found.
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
-          </div>
 
-          {/* Pagination Controls */}
-          {data.length > 0 && (
-            <div className="flex items-center justify-between p-4 border-t border-gray-200 bg-white shrink-0 rounded-b-xl">
-              <div className="text-sm text-gray-500">
-                Showing <span className="font-semibold text-teal-900">{startIndex + 1}</span> to <span className="font-semibold text-teal-900">{Math.min(startIndex + rowsPerPage, data.length)}</span> of <span className="font-semibold text-teal-900">{data.length}</span> entries
-              </div>
-              <div className="flex items-center gap-1 border border-gray-300 rounded-md overflow-hidden shadow-sm">
-                <button 
-                  onClick={handlePrevPage}
-                  disabled={currentPage === 1}
-                  className="p-1.5 bg-white text-gray-600 hover:bg-gray-50 hover:text-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-r border-gray-300"
-                >
-                  <ChevronLeft size={18} />
-                </button>
-                
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 flex items-center justify-center text-sm font-bold transition-colors
-                      ${currentPage === page ? 'bg-teal-600 text-white' : 'bg-white text-teal-900 hover:bg-gray-50 border-r border-gray-300'}`}
-                  >
-                    {page}
-                  </button>
-                ))}
-                
-                <button 
-                  onClick={handleNextPage}
-                  disabled={currentPage === totalPages}
-                  className="p-1.5 bg-white text-gray-600 hover:bg-gray-50 hover:text-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  <ChevronRight size={18} />
-                </button>
-              </div>
+              {/* Pagination Controls */}
+              {data.length > 0 && (
+                <div className="flex items-center justify-between p-4 border-t border-gray-200 bg-white shrink-0 rounded-b-xl">
+                  <div className="text-sm text-gray-500">
+                    Showing <span className="font-semibold text-teal-900">{startIndex + 1}</span> to <span className="font-semibold text-teal-900">{Math.min(startIndex + rowsPerPage, data.length)}</span> of <span className="font-semibold text-teal-900">{data.length}</span> entries
+                  </div>
+                  <div className="flex items-center gap-1 border border-gray-300 rounded-md overflow-hidden shadow-sm">
+                    <button 
+                      onClick={handlePrevPage}
+                      disabled={currentPage === 1}
+                      className="p-1.5 bg-white text-gray-600 hover:bg-gray-50 hover:text-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors border-r border-gray-300"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                      <button
+                        key={page}
+                        onClick={() => setCurrentPage(page)}
+                        className={`w-8 h-8 flex items-center justify-center text-sm font-bold transition-colors
+                          ${currentPage === page ? 'bg-teal-600 text-white' : 'bg-white text-teal-900 hover:bg-gray-50 border-r border-gray-300'}`}
+                      >
+                        {page}
+                      </button>
+                    ))}
+                    
+                    <button 
+                      onClick={handleNextPage}
+                      disabled={currentPage === totalPages}
+                      className="p-1.5 bg-white text-gray-600 hover:bg-gray-50 hover:text-teal-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                </div>
+              )}
+
             </div>
-          )}
-
-        </div>
+          </>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
@@ -834,6 +888,11 @@ function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Conflict Analysis Modal */}
+      {conflictItem && (
+        <ConflictAnalysisModal item={conflictItem} onClose={() => setConflictItem(null)} />
       )}
     </div>
   );

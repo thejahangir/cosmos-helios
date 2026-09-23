@@ -42,7 +42,7 @@ const CONF = { HIGH: 'high', CONFIRM: 'confirm', MANUAL: 'manual' };
 const dotColor = (c) => c === CONF.HIGH ? 'bg-green-500' : c === CONF.CONFIRM ? 'bg-yellow-400' : 'bg-red-500';
 
 /* ─── Animated read-only field (typewriter) ──────────────────────────────── */
-function AnimatedField({ value, filled, confidence = CONF.HIGH, multiline = false }) {
+function AnimatedField({ value, filled, confidence = CONF.HIGH, multiline = false, isTeal = false }) {
   const [displayed, setDisplayed] = useState('');
   const [done, setDone] = useState(false);
 
@@ -57,8 +57,10 @@ function AnimatedField({ value, filled, confidence = CONF.HIGH, multiline = fals
     return () => clearInterval(iv);
   }, [filled, value]);
 
-  const ring = filled ? 'border-orange-200 bg-orange-50/30' : 'border-slate-200 bg-white';
-  const base = `w-full border rounded-md px-3 text-sm text-slate-800 transition-all duration-300 focus:outline-none placeholder:text-slate-300 ${ring}`;
+  const ring = filled 
+    ? (isTeal ? 'border-teal-300 bg-teal-50/40 text-teal-950 font-medium' : 'border-orange-200 bg-orange-50/30 text-slate-800')
+    : 'border-slate-200 bg-white text-slate-800';
+  const base = `w-full border rounded-md px-3 text-sm transition-all duration-300 focus:outline-none placeholder:text-slate-300 ${ring}`;
 
   return (
     <div className="relative w-full">
@@ -94,11 +96,11 @@ function SourceNote({ from, visible }) {
 }
 
 /* ─── Section divider ─────────────────────────────────────────────────────── */
-function SectionHead({ children }) {
+function SectionHead({ children, isTeal = false }) {
   return (
     <div className="col-span-12 flex items-center gap-3 pt-1">
-      <p className="text-[10px] font-extrabold tracking-widest uppercase text-orange-700 whitespace-nowrap">{children}</p>
-      <div className="flex-1 h-px bg-orange-100" />
+      <p className={`text-[10px] font-extrabold tracking-widest uppercase whitespace-nowrap ${isTeal ? 'text-teal-900' : 'text-orange-700'}`}>{children}</p>
+      <div className={`flex-1 h-px ${isTeal ? 'bg-teal-100' : 'bg-orange-100'}`} />
     </div>
   );
 }
@@ -118,7 +120,7 @@ function LegalLine({ visible, delay, children }) {
 }
 
 /* ─── Party row ──────────────────────────────────────────────────────────── */
-function PartyRow({ party, filled, index }) {
+function PartyRow({ party, filled, index, isTeal = false }) {
   const [vis, setVis] = useState(false);
   useEffect(() => {
     if (filled) { const t = setTimeout(() => setVis(true), index * 110); return () => clearTimeout(t); }
@@ -133,25 +135,49 @@ function PartyRow({ party, filled, index }) {
       <td className="px-3 py-2">{vis && <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide">{party.type}</span>}</td>
       <td className="px-3 py-2">
         {vis && <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wide ${
-          party.role.toLowerCase().includes('plaintiff') ? 'bg-orange-100 text-orange-700'
-          : party.role.toLowerCase().includes('client') ? 'bg-blue-50 text-blue-700'
-          : 'bg-slate-100 text-slate-600'}`}>{party.role}</span>}
+          party.role.toLowerCase().includes('plaintiff') 
+            ? (isTeal ? 'bg-teal-100 text-teal-900 border border-teal-200' : 'bg-orange-100 text-orange-700')
+            : party.role.toLowerCase().includes('client') 
+            ? 'bg-blue-50 text-blue-700'
+            : 'bg-slate-100 text-slate-600'}`}>{party.role}</span>}
       </td>
       <td className="px-3 py-2 text-center">
-        {vis && <span className={`inline-block w-2 h-2 rounded-full ${party.adverse ? 'bg-orange-500' : 'bg-slate-200'}`} />}
+        {vis && <span className={`inline-block w-2 h-2 rounded-full ${party.adverse ? (isTeal ? 'bg-teal-600' : 'bg-orange-500') : 'bg-slate-200'}`} />}
       </td>
     </tr>
   );
 }
 
 /* ─── Main page ──────────────────────────────────────────────────────────── */
-export default function IntakePage({ onBack }) {
+export default function IntakePage({ onBack, matter, theme = 'v3' }) {
+  const isTeal = theme === 'teal' || theme === 'v1';
   const [emailOpen, setEmailOpen] = useState(true);
   const [extracting, setExtracting] = useState(false);
   const [extracted, setExtracted] = useState(false);
   const [filled, setFilled] = useState({});
   const [legalCardVisible, setLegalCardVisible] = useState(false);
   const [approvalSubmitted, setApprovalSubmitted] = useState(false);
+
+  const matterId = matter?.id || 'CM-1098466';
+  const clientName = matter?.client || COSMOS_DATA.client;
+  const caseDescription = matter?.matterDesc || matter?.description || COSMOS_DATA.caseStyle;
+  const leadPartner = matter?.leadPartner || COSMOS_DATA.billingAttorney;
+  const status = matter?.status || COSMOS_DATA.stage;
+  const notesStr = matter?.notes || COSMOS_DATA.notes;
+  const typeStr = matter?.type || COSMOS_DATA.workflowDescription;
+
+  const pageData = {
+    ...COSMOS_DATA,
+    workflowDescription: typeStr,
+    stage: status,
+    client: clientName,
+    caseStyle: caseDescription,
+    billingAttorney: leadPartner,
+    responsibleAttorney: leadPartner,
+    assignedAttorney: leadPartner,
+    notes: notesStr,
+    formNo: `NBI-${matterId.replace(/[^0-9]/g, '') || '2026-0629'}`,
+  };
 
   const ORDER = [
     'workflowDescription','stage','initiator','processOwner','requestor',
@@ -186,22 +212,29 @@ export default function IntakePage({ onBack }) {
       {/* Sub-header */}
       <div className="shrink-0 bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="flex items-center gap-1.5 text-slate-500 hover:text-orange-800 font-semibold text-xs border border-slate-200 hover:border-orange-300 px-3 py-1.5 rounded-lg transition-all">
+          <button 
+            onClick={onBack} 
+            className={`flex items-center gap-1.5 text-slate-600 font-semibold text-xs border border-slate-200 px-3 py-1.5 rounded-lg transition-all ${
+              isTeal ? 'hover:text-teal-900 hover:border-teal-400 hover:bg-teal-50/50' : 'hover:text-orange-800 hover:border-orange-300 hover:bg-orange-50/50'
+            }`}
+          >
             <ArrowLeft size={13} /> Back to Queue
           </button>
           <div className="w-px h-4 bg-slate-200" />
-          <span className="text-[11px] font-extrabold tracking-[0.12em] uppercase text-slate-400">New Business Intake \u2013 Matter</span>
+          <span className="text-[11px] font-extrabold tracking-[0.12em] uppercase text-slate-400">New Business Intake – Matter</span>
         </div>
-        <span className="text-[10px] font-black tracking-widest bg-orange-800 text-white px-3 py-1 rounded">CM-1098466</span>
+        <span className={`text-[10px] font-black tracking-widest text-white px-3 py-1 rounded shadow-sm ${
+          isTeal ? 'bg-teal-900' : 'bg-orange-800'
+        }`}>{matterId}</span>
       </div>
 
       {/* Scrollable body */}
       <div className="flex-1 overflow-y-auto">
 
         {/* Real filing banner */}
-        <div className="bg-green-50 border-b border-green-200 px-6 py-2 flex items-center gap-2">
-          <CheckCircle size={13} className="text-green-600 shrink-0" />
-          <p className="text-xs text-green-800">
+        <div className="bg-emerald-50 border-b border-emerald-200 px-6 py-2 flex items-center gap-2">
+          <CheckCircle size={13} className="text-emerald-600 shrink-0" />
+          <p className="text-xs text-emerald-900">
             <span className="font-extrabold italic">Real filing.</span>{' '}
             Every field below was read from verified public court documents. Nothing was invented.
           </p>
@@ -212,7 +245,9 @@ export default function IntakePage({ onBack }) {
           <div className="flex items-center justify-between px-6 py-3">
             <p className="text-[10px] font-extrabold tracking-widest uppercase text-slate-400">
               Source Email{' '}
-              <span className="text-orange-700 normal-case tracking-normal font-semibold text-xs ml-1.5">Lisa Hirsch, K2 Claims Services, LLC</span>
+              <span className={`normal-case tracking-normal font-semibold text-xs ml-1.5 ${
+                isTeal ? 'text-teal-800' : 'text-orange-700'
+              }`}>Lisa Hirsch, {clientName}</span>
             </p>
             <button onClick={() => setEmailOpen(v => !v)} className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600 transition-colors">
               {emailOpen ? <><ChevronUp size={13} /> hide</> : <><ChevronDown size={13} /> show</>}
@@ -222,27 +257,36 @@ export default function IntakePage({ onBack }) {
             <div className="px-6 pb-4 space-y-3 bg-slate-50/40 border-t border-slate-100">
               <div className="pt-3 grid grid-cols-[44px_1fr] gap-x-3 gap-y-1 text-xs">
                 <span className="text-slate-400 font-bold uppercase tracking-widest pt-0.5">From</span>
-                <span className="text-orange-700 font-semibold">Lisa Hirsch, K2 Claims Services (forwarding sender), K2 Claims Services, LLC</span>
+                <span className={`font-semibold ${isTeal ? 'text-teal-800' : 'text-orange-700'}`}>Lisa Hirsch, {clientName}</span>
                 <span className="text-slate-400 font-bold uppercase tracking-widest pt-0.5">To</span>
-                <span className="text-slate-700 font-semibold">Gene P. Kissane</span>
+                <span className="text-slate-700 font-semibold">{leadPartner}</span>
                 <span className="text-slate-400 font-bold uppercase tracking-widest pt-0.5">Date</span>
-                <span className="text-slate-600">June 29, 2026 · 1:38 PM</span>
+                <span className="text-slate-600">{matter?.initiated || 'June 29, 2026 · 1:38 PM'}</span>
               </div>
-              <p className="text-xs font-semibold text-slate-700">Fw: FNOL &amp; Default &amp; Request for Authority [10251090854] New City Westchester LLC D.O.I. 11/11/2024</p>
+              <p className="text-xs font-semibold text-slate-700">Fw: FNOL &amp; Default &amp; Request for Authority [{matterId}] {clientName}</p>
               <p className="text-xs text-slate-500 leading-relaxed bg-white border border-slate-100 rounded-lg p-3">
-                Hello Gene, we are requesting your assistance as defense counsel for the above claim. Case summary (authored by Darlene Drain, Commercial Clai\u2026
+                Hello {leadPartner}, we are requesting your assistance as defense counsel for the above claim. Case summary: {caseDescription}...
               </p>
               <div className="flex flex-wrap gap-2">
                 {[
-                  { label: 'CM-1098466 Email \u2014 new file assignment', meta: '5p' },
-                  { label: 'CM-1098466 Complaint (Marchese)', meta: '11p' },
+                  { label: `${matterId} Email — new file assignment`, meta: '5p' },
+                  { label: `${matterId} Complaint`, meta: '11p' },
                 ].map(doc => (
-                  <div key={doc.label} className="flex items-center gap-2 border border-slate-200 bg-white rounded-lg px-3 py-1.5 text-xs hover:border-orange-300 transition-colors cursor-pointer">
-                    <span className="bg-orange-800 text-white text-[9px] font-black px-1.5 py-0.5 rounded">PDF</span>
+                  <div 
+                    key={doc.label} 
+                    className={`flex items-center gap-2 border border-slate-200 bg-white rounded-lg px-3 py-1.5 text-xs transition-colors cursor-pointer ${
+                      isTeal ? 'hover:border-teal-400 hover:bg-teal-50/20' : 'hover:border-orange-300 hover:bg-orange-50/20'
+                    }`}
+                  >
+                    <span className={`text-white text-[9px] font-black px-1.5 py-0.5 rounded ${
+                      isTeal ? 'bg-teal-900' : 'bg-orange-800'
+                    }`}>PDF</span>
                     <span className="text-slate-700 font-semibold">{doc.label}</span>
                     <span className="text-slate-400">· {doc.meta}</span>
                     <ExternalLink size={10} className="text-slate-400" />
-                    <span className="text-orange-700 font-bold text-[10px] uppercase tracking-wide">View</span>
+                    <span className={`font-bold text-[10px] uppercase tracking-wide ${
+                      isTeal ? 'text-teal-800' : 'text-orange-700'
+                    }`}>View</span>
                   </div>
                 ))}
               </div>
@@ -252,16 +296,24 @@ export default function IntakePage({ onBack }) {
 
         {/* Extraction bar */}
         <div className="flex flex-wrap items-center gap-4 px-6 py-3 border-b border-slate-100 bg-slate-50/50">
-          <button onClick={runExtraction} disabled={extracting || extracted}
+          <button 
+            onClick={runExtraction} 
+            disabled={extracting || extracted}
             className={`flex items-center gap-2 font-bold text-sm px-5 py-2 rounded-lg transition-all shadow-sm shrink-0 ${
-              extracted ? 'bg-green-600 text-white cursor-default'
-              : extracting ? 'bg-orange-600/80 text-white cursor-wait'
-              : 'bg-orange-700 hover:bg-orange-800 text-white hover:shadow-md hover:-translate-y-0.5'}`}>
+              extracted 
+                ? 'bg-emerald-700 text-white cursor-default'
+                : extracting 
+                ? (isTeal ? 'bg-teal-700/80 text-white cursor-wait' : 'bg-orange-600/80 text-white cursor-wait')
+                : (isTeal 
+                  ? 'bg-teal-900 hover:bg-teal-800 text-white hover:shadow-md hover:-translate-y-0.5' 
+                  : 'bg-orange-700 hover:bg-orange-800 text-white hover:shadow-md hover:-translate-y-0.5')
+            }`}
+          >
             {extracted ? <><CheckCircle size={14} /> Extraction Complete</>
-              : extracting ? <><Loader2 size={14} className="animate-spin" /> Extracting\u2026</>
-              : <><Zap size={14} /> Run Cosmos extraction</>}
+              : extracting ? <><Loader2 size={14} className="animate-spin" /> Extracting…</>
+              : <><Zap size={14} className={isTeal ? "text-emerald-400" : "text-amber-300"} /> Run Cosmos extraction</>}
           </button>
-          <p className="text-xs text-slate-400 leading-relaxed">
+          <p className="text-xs text-slate-500 leading-relaxed">
             {extracted ? 'All fields populated from verified court and email documents.'
               : 'Today this is filled by hand. Cosmos reads the email and complaint and fills it automatically.'}
           </p>
@@ -274,133 +326,133 @@ export default function IntakePage({ onBack }) {
             {/* Workflow ID (2) | Description (5) | Date (3) | Stage (2) */}
             <div className="col-span-2">
               <FL>Workflow ID</FL>
-              <StaticField value="CM-1098466" />
-              <p className="text-[10px] text-slate-300 mt-0.5">System</p>
+              <StaticField value={matterId} />
+              <p className="text-[10px] text-slate-400 mt-0.5">System</p>
             </div>
             <div className="col-span-5">
               <FL>Description</FL>
-              <AnimatedField value={COSMOS_DATA.workflowDescription} filled={f('workflowDescription')} />
+              <AnimatedField value={pageData.workflowDescription} filled={f('workflowDescription')} isTeal={isTeal} />
             </div>
             <div className="col-span-3">
               <FL>Date</FL>
-              <StaticField value="June 29, 2026 · 1:46 PM" />
-              <p className="text-[10px] text-slate-300 mt-0.5">System</p>
+              <StaticField value={matter?.initiated || "June 29, 2026 · 1:46 PM"} />
+              <p className="text-[10px] text-slate-400 mt-0.5">System</p>
             </div>
             <div className="col-span-2">
               <FL>Stage</FL>
-              <AnimatedField value={COSMOS_DATA.stage} filled={f('stage')} />
+              <AnimatedField value={pageData.stage} filled={f('stage')} isTeal={isTeal} />
             </div>
 
             {/* Initiator (4) | Process Owner (4) | Requestor (4) */}
             <div className="col-span-4">
               <FL>Initiator</FL>
-              <AnimatedField value={COSMOS_DATA.initiator} filled={f('initiator')} />
+              <AnimatedField value={pageData.initiator} filled={f('initiator')} isTeal={isTeal} />
             </div>
             <div className="col-span-4">
               <FL>Process Owner</FL>
-              <AnimatedField value={COSMOS_DATA.processOwner} filled={f('processOwner')} confidence={CONF.CONFIRM} />
+              <AnimatedField value={pageData.processOwner} filled={f('processOwner')} confidence={CONF.CONFIRM} isTeal={isTeal} />
             </div>
             <div className="col-span-4">
               <FL>Requestor</FL>
-              <AnimatedField value={COSMOS_DATA.requestor} filled={f('requestor')} />
+              <AnimatedField value={pageData.requestor} filled={f('requestor')} isTeal={isTeal} />
             </div>
 
             {/* Form# (3) | Session# (4) | Rev# (1 — value="1") | Confidential (4) */}
             <div className="col-span-3">
               <FL>Form #</FL>
-              <AnimatedField value={COSMOS_DATA.formNo} filled={f('formNo')} />
+              <AnimatedField value={pageData.formNo} filled={f('formNo')} isTeal={isTeal} />
             </div>
             <div className="col-span-4">
               <FL>Session #</FL>
-              <AnimatedField value={COSMOS_DATA.sessionNo} filled={f('sessionNo')} />
+              <AnimatedField value={pageData.sessionNo} filled={f('sessionNo')} isTeal={isTeal} />
             </div>
             <div className="col-span-1">
               <FL>Rev #</FL>
-              <AnimatedField value={COSMOS_DATA.revisionNo} filled={f('revisionNo')} />
+              <AnimatedField value={pageData.revisionNo} filled={f('revisionNo')} isTeal={isTeal} />
             </div>
             <div className="col-span-4">
               <FL>Confidential</FL>
-              <AnimatedField value={COSMOS_DATA.confidential} filled={f('confidential')} confidence={CONF.MANUAL} />
+              <AnimatedField value={pageData.confidential} filled={f('confidential')} confidence={CONF.MANUAL} isTeal={isTeal} />
             </div>
 
             {/* Client */}
-            <SectionHead>Client</SectionHead>
+            <SectionHead isTeal={isTeal}>Client</SectionHead>
             {/* Existing Client? (2 — value "No") | Client name (10) */}
             <div className="col-span-2">
               <FL>Existing Client?</FL>
-              <AnimatedField value={COSMOS_DATA.existingClient} filled={f('existingClient')} />
+              <AnimatedField value={pageData.existingClient} filled={f('existingClient')} isTeal={isTeal} />
             </div>
             <div className="col-span-10">
               <FL>Client</FL>
-              <AnimatedField value={COSMOS_DATA.client} filled={f('client')} />
+              <AnimatedField value={pageData.client} filled={f('client')} isTeal={isTeal} />
             </div>
 
             {/* Matter */}
-            <SectionHead>Matter</SectionHead>
+            <SectionHead isTeal={isTeal}>Matter</SectionHead>
             {/* Case style — full width (long text) */}
             <div className="col-span-12">
               <FL>Case Style</FL>
-              <AnimatedField value={COSMOS_DATA.caseStyle} filled={f('caseStyle')} />
+              <AnimatedField value={pageData.caseStyle} filled={f('caseStyle')} isTeal={isTeal} />
             </div>
             {/* Area of Law (7) | Insurer Status (5) */}
             <div className="col-span-7">
               <FL>Area of Law</FL>
-              <AnimatedField value={COSMOS_DATA.areaOfLaw} filled={f('areaOfLaw')} />
+              <AnimatedField value={pageData.areaOfLaw} filled={f('areaOfLaw')} isTeal={isTeal} />
             </div>
             <div className="col-span-5">
               <FL>Insurer Status (Fla. R. 4-1.7(e))</FL>
-              <AnimatedField value={COSMOS_DATA.insurerStatus} filled={f('insurerStatus')} confidence={CONF.CONFIRM} />
+              <AnimatedField value={pageData.insurerStatus} filled={f('insurerStatus')} confidence={CONF.CONFIRM} isTeal={isTeal} />
             </div>
 
             {/* Attorney Assignment */}
-            <SectionHead>Attorney Assignment</SectionHead>
+            <SectionHead isTeal={isTeal}>Attorney Assignment</SectionHead>
             <div className="col-span-4">
               <FL>Billing Attorney</FL>
-              <AnimatedField value={COSMOS_DATA.billingAttorney} filled={f('billingAttorney')} confidence={CONF.CONFIRM} />
+              <AnimatedField value={pageData.billingAttorney} filled={f('billingAttorney')} confidence={CONF.CONFIRM} isTeal={isTeal} />
             </div>
             <div className="col-span-4">
               <FL>Responsible Attorney</FL>
-              <AnimatedField value={COSMOS_DATA.responsibleAttorney} filled={f('responsibleAttorney')} confidence={CONF.CONFIRM} />
+              <AnimatedField value={pageData.responsibleAttorney} filled={f('responsibleAttorney')} confidence={CONF.CONFIRM} isTeal={isTeal} />
             </div>
             <div className="col-span-4">
               <FL>Assigned Attorney</FL>
-              <AnimatedField value={COSMOS_DATA.assignedAttorney} filled={f('assignedAttorney')} confidence={CONF.CONFIRM} />
+              <AnimatedField value={pageData.assignedAttorney} filled={f('assignedAttorney')} confidence={CONF.CONFIRM} isTeal={isTeal} />
             </div>
 
             {/* Parties */}
-            <SectionHead>Parties ({COSMOS_DATA.parties.length})</SectionHead>
+            <SectionHead isTeal={isTeal}>Parties ({pageData.parties.length})</SectionHead>
             <div className="col-span-12 overflow-x-auto rounded-lg border border-slate-200">
               <table className="w-full">
                 <thead>
-                  <tr className="bg-slate-100">
+                  <tr className={isTeal ? 'bg-slate-100 text-teal-950' : 'bg-slate-100'}>
                     {['First / Organization','Last Name','Suffix','Type','Party Role','Adverse'].map(h => (
-                      <th key={h} className="px-3 py-2.5 text-left text-[10px] font-bold tracking-wider uppercase whitespace-nowrap text-slate-500">{h}</th>
+                      <th key={h} className="px-3 py-2.5 text-left text-[10px] font-bold tracking-wider uppercase whitespace-nowrap text-slate-600">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {COSMOS_DATA.parties.map((p, i) => (
-                    <PartyRow key={i} party={p} filled={f('parties')} index={i} />
+                  {pageData.parties.map((p, i) => (
+                    <PartyRow key={i} party={p} filled={f('parties')} index={i} isTeal={isTeal} />
                   ))}
                 </tbody>
               </table>
             </div>
 
             {/* Conflicts Questionnaire */}
-            <SectionHead>Conflicts Questionnaire</SectionHead>
+            <SectionHead isTeal={isTeal}>Conflicts Questionnaire</SectionHead>
             {/* Rush Priority (2 — value "Yes") */}
             <div className="col-span-2">
               <FL>Rush Priority</FL>
-              <AnimatedField value={COSMOS_DATA.rushPriority} filled={f('rushPriority')} />
-              <SourceNote from={COSMOS_DATA.rushPrioritySource} visible={f('rushPriority')} />
+              <AnimatedField value={pageData.rushPriority} filled={f('rushPriority')} isTeal={isTeal} />
+              <SourceNote from={pageData.rushPrioritySource} visible={f('rushPriority')} />
             </div>
             <div className="col-span-10" />
 
             {/* Notes — full width multiline */}
             <div className="col-span-12">
               <FL>Notes</FL>
-              <AnimatedField value={COSMOS_DATA.notes} filled={f('notes')} multiline />
-              <SourceNote from={COSMOS_DATA.notesSource} visible={f('notes')} />
+              <AnimatedField value={pageData.notes} filled={f('notes')} multiline isTeal={isTeal} />
+              <SourceNote from={pageData.notesSource} visible={f('notes')} />
             </div>
 
             {/* Confidence legend */}
@@ -408,11 +460,11 @@ export default function IntakePage({ onBack }) {
               {[
                 { color: 'bg-green-500', label: 'High confidence' },
                 { color: 'bg-yellow-400', label: 'Intaker confirms' },
-                { color: 'bg-red-500', label: 'Not in source \u2014 intaker must supply' },
+                { color: 'bg-red-500', label: 'Not in source — intaker must supply' },
               ].map(item => (
                 <div key={item.label} className="flex items-center gap-1.5">
                   <span className={`w-1.5 h-1.5 rounded-full ${item.color}`} />
-                  <span className="text-[11px] text-slate-400">{item.label}</span>
+                  <span className="text-[11px] text-slate-500">{item.label}</span>
                 </div>
               ))}
             </div>
@@ -427,13 +479,13 @@ export default function IntakePage({ onBack }) {
                   pointerEvents: legalCardVisible ? 'auto' : 'none',
                 }}
               >
-                <div className="border border-green-200 bg-green-50/60 rounded-xl px-5 py-4 space-y-2.5">
+                <div className="border border-emerald-300 bg-emerald-50/70 rounded-xl px-5 py-4 space-y-2.5">
                   {[
-                  { delay: 0,   el: <p className="text-sm font-bold text-green-800 leading-snug">Rule 4\u20131.7(e) satisfied from the standing determination for Midvale Indemnity Company.</p> },
-                  { delay: 150, el: <p className="text-sm font-semibold text-slate-700">Insured only: the insurer is a non-client third-party payor</p> },
-                  { delay: 300, el: <p className="text-xs text-slate-600 leading-relaxed">Determined by <span className="font-semibold">M. Alvarez (General Counsel)</span> on January 12, 2024. Panel Counsel Agreement, clause 4.2, and the carrier\u2019s outside counsel guidelines: the firm is retained to defend the insured; the carrier does not become a client of the firm.</p> },
-                  { delay: 450, el: <p className="text-xs text-slate-600 leading-relaxed">The carrier is NOT a client. Acting against it for another client is not a concurrent conflict. Rule 4\u20131.8(f) now governs the fee arrangement: the client must consent, the lawyer\u2019s independence must be protected, and confidences preserved.</p> },
-                  { delay: 600, el: <p className="text-xs text-slate-600 leading-relaxed"><span className="font-bold text-green-700">The firm settles this once with each panel carrier, not on every file.</span>{' '}Cosmos applies the standing answer, records it on the matter, and re-opens it the moment a file contradicts it: a reservation of rights, a coverage dispute, a declaratory action.</p> },
+                  { delay: 0,   el: <p className="text-sm font-bold text-emerald-950 leading-snug">Rule 4–1.7(e) satisfied from the standing determination for Midvale Indemnity Company.</p> },
+                  { delay: 150, el: <p className="text-sm font-semibold text-slate-800">Insured only: the insurer is a non-client third-party payor</p> },
+                  { delay: 300, el: <p className="text-xs text-slate-700 leading-relaxed">Determined by <span className="font-semibold text-slate-900">M. Alvarez (General Counsel)</span> on January 12, 2024. Panel Counsel Agreement, clause 4.2, and the carrier’s outside counsel guidelines: the firm is retained to defend the insured; the carrier does not become a client of the firm.</p> },
+                  { delay: 450, el: <p className="text-xs text-slate-700 leading-relaxed">The carrier is NOT a client. Acting against it for another client is not a concurrent conflict. Rule 4–1.8(f) now governs the fee arrangement: the client must consent, the lawyer’s independence must be protected, and confidences preserved.</p> },
+                  { delay: 600, el: <p className="text-xs text-slate-700 leading-relaxed"><span className="font-bold text-emerald-800">The firm settles this once with each panel carrier, not on every file.</span> Cosmos applies the standing answer, records it on the matter, and re-opens it the moment a file contradicts it: a reservation of rights, a coverage dispute, a declaratory action.</p> },
                   ].map(({ delay, el }, i) => (
                     <LegalLine key={i} visible={legalCardVisible} delay={delay}>{el}</LegalLine>
                   ))}
@@ -448,7 +500,12 @@ export default function IntakePage({ onBack }) {
       {/* Footer */}
       <div className="shrink-0 bg-white border-t border-slate-200 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={onBack} className="flex items-center gap-1.5 text-slate-600 hover:text-orange-800 font-semibold text-sm border border-slate-200 hover:border-orange-300 px-4 py-2 rounded-lg transition-all">
+          <button 
+            onClick={onBack} 
+            className={`flex items-center gap-1.5 font-semibold text-sm border border-slate-200 px-4 py-2 rounded-lg transition-all ${
+              isTeal ? 'text-slate-700 hover:text-teal-900 hover:border-teal-400 hover:bg-teal-50/50' : 'text-slate-600 hover:text-orange-800 hover:border-orange-300 hover:bg-orange-50/50'
+            }`}
+          >
             <ArrowLeft size={14} /> Back to Inbox
           </button>
           <button className="text-slate-400 hover:text-slate-600 font-semibold text-sm px-4 py-2 rounded-lg hover:bg-slate-50 transition-colors">
@@ -461,7 +518,12 @@ export default function IntakePage({ onBack }) {
             setApprovalSubmitted(true);
             setLegalCardVisible(false);
           }}
-          className={`font-bold text-sm px-6 py-2.5 rounded-lg transition-all shadow-sm bg-orange-800 text-white hover:bg-orange-900 hover:shadow-md hover:-translate-y-0.5`}>
+          className={`font-bold text-sm px-6 py-2.5 rounded-lg transition-all shadow-sm text-white ${
+            isTeal 
+              ? 'bg-teal-900 hover:bg-teal-950 hover:shadow-md hover:-translate-y-0.5' 
+              : 'bg-orange-800 hover:bg-orange-900 hover:shadow-md hover:-translate-y-0.5'
+          }`}
+        >
           {approvalSubmitted ? 'Approve and send to Conflicts' : 'Submit for approval'}
         </button>
       </div>

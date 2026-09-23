@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import IntakePage from './IntakePage';
 import IntakeSummaryModal from './IntakeSummaryModal';
 import ConflictAnalysisModal from './ConflictAnalysisModal';
+import LogoCh2 from './assets/logo-ch2.png';
 import { 
   Inbox, 
   Upload, 
@@ -16,15 +17,157 @@ import {
   Trash2,
   X,
   Activity,
-  ArrowRight
+  ArrowRight,
+  ExternalLink
 } from 'lucide-react';
+
+const initialTableData = [
+  {
+    id: 'CM-1098466',
+    tag: 'Real Filing',
+    riskLevel: 'High',
+    jurisdiction: 'NY State Supreme',
+    leadPartner: 'J. Harrison',
+    description: 'Marchese v. New City Westchester (slip and fall) - default alleged',
+    initiated: 'June 29, 2026 1:38 PM',
+    type: 'New Client/Matter Intake (RUSH)',
+    client: 'K2 Claims Services, LLC',
+    matterNum: '0',
+    matterDesc: 'Nicolina Marchese v. New City Westchester Group LLC d/b/a Westchester Golf & Country Club',
+    initiator: 'Cosmos Cortex (auto-intake)',
+    status: 'Draft - Intake',
+    notes: 'CM-1098466 Email - new file assignment.pdf, CM-1098466 Complaint.pdf'
+  },
+  {
+    id: 'CM-1098467',
+    tag: 'Live Conflict Search',
+    riskLevel: 'Medium',
+    jurisdiction: 'SDNY Federal',
+    leadPartner: 'A. Patel',
+    description: 'Smith v. Horizon Logistics (breach of contract)',
+    initiated: 'June 29, 2026 2:15 PM',
+    type: 'New Matter Intake',
+    client: 'Horizon Logistics Inc.',
+    matterNum: '0',
+    matterDesc: 'John Smith v. Horizon Logistics Inc. and Does 1-10',
+    initiator: 'Cosmos Cortex (auto-intake)',
+    status: 'Pending - Review',
+    notes: 'CM-1098467 Summons.pdf, Initial_Demand_Letter.pdf'
+  },
+  {
+    id: 'CM-1098468',
+    tag: 'Real Filing',
+    riskLevel: 'High',
+    jurisdiction: 'CA Superior - LA',
+    leadPartner: 'S. Goldberg',
+    description: 'Davis v. Statewide Insurance (bad faith claim)',
+    initiated: 'June 30, 2026 9:00 AM',
+    type: 'New Client/Matter Intake',
+    client: 'Statewide Insurance Co.',
+    matterNum: '0',
+    matterDesc: 'Marcus Davis v. Statewide Insurance Co.',
+    initiator: 'Jane Doe',
+    status: 'Approved',
+    notes: 'CM-1098468 Claim_File.pdf'
+  },
+  {
+    id: 'CM-1098469',
+    tag: 'Firm Book Load',
+    riskLevel: 'Low',
+    jurisdiction: 'Internal',
+    leadPartner: 'Firm Ops',
+    description: 'Aderant Extract 2026 Q2',
+    initiated: 'June 30, 2026 10:30 AM',
+    type: 'Bulk Conflict Update',
+    client: 'Internal - Firm Ops',
+    matterNum: 'N/A',
+    matterDesc: 'Quarterly Aderant data synchronization and conflict index update',
+    initiator: 'System Admin',
+    status: 'Completed',
+    notes: 'Aderant_Q2_Extract_Log.csv'
+  },
+  {
+    id: 'CM-1098470',
+    tag: 'Real Filing',
+    riskLevel: 'High',
+    jurisdiction: 'TX Dist. Harris Cty',
+    leadPartner: 'M. Chen',
+    description: 'Torres v. Apex Manufacturing (product liability)',
+    initiated: 'June 30, 2026 11:45 AM',
+    type: 'New Client/Matter Intake (RUSH)',
+    client: 'Apex Manufacturing Solutions',
+    matterNum: '0',
+    matterDesc: 'Maria Torres v. Apex Manufacturing Solutions, Regional Distributors LLC',
+    initiator: 'Cosmos Cortex (auto-intake)',
+    status: 'Draft - Intake',
+    notes: 'CM-1098470 Complaint_Product_Defect.pdf'
+  },
+  {
+    id: 'CM-1098471',
+    tag: 'Live Conflict Search',
+    riskLevel: 'Medium',
+    jurisdiction: 'FL Circuit - Miami',
+    leadPartner: 'R. Simmons',
+    description: 'Reynolds Estate (probate dispute)',
+    initiated: 'July 1, 2026 8:20 AM',
+    type: 'New Client Intake',
+    client: 'Reynolds Family Trust',
+    matterNum: '0',
+    matterDesc: 'Estate of Arthur Reynolds - Beneficiary Dispute',
+    initiator: 'John Smith',
+    status: 'Conflict Check',
+    notes: 'Trust_Documents_Redacted.pdf, Beneficiary_List.pdf'
+  }
+];
 
 function AppV3() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
-  const [intakeItem, setIntakeItem] = useState(null);
   const [summaryItem, setSummaryItem] = useState(null);
   const [conflictItem, setConflictItem] = useState(null);
+  const [data, setData] = useState(initialTableData);
+
+  const [intakeItem, setIntakeItem] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const intakeId = params.get('intake');
+      if (intakeId) {
+        return initialTableData.find(item => item.id === intakeId) || { id: intakeId };
+      }
+    }
+    return null;
+  });
+
+  const handleOpenIntake = (item) => {
+    setIntakeItem(item);
+    const url = new URL(window.location.href);
+    url.searchParams.set('intake', item.id);
+    window.history.pushState({ intakeId: item.id }, '', url.toString());
+  };
+
+  const handleBackFromIntake = () => {
+    if (new URLSearchParams(window.location.search).has('intake')) {
+      window.history.back();
+    } else {
+      setIntakeItem(null);
+    }
+  };
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const intakeId = params.get('intake');
+      if (intakeId) {
+        const found = data.find(item => item.id === intakeId) || initialTableData.find(item => item.id === intakeId) || { id: intakeId };
+        setIntakeItem(found);
+      } else {
+        setIntakeItem(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [data]);
   
   const pendingIntakes = 12; 
 
@@ -42,107 +185,6 @@ function AppV3() {
     completed: i < activeStepIndex,
     current: i === activeStepIndex,
   }));
-  
-  const initialTableData = [
-    {
-      id: 'CM-1098466',
-      tag: 'Real Filing',
-      riskLevel: 'High',
-      jurisdiction: 'NY State Supreme',
-      leadPartner: 'J. Harrison',
-      description: 'Marchese v. New City Westchester (slip and fall) - default alleged',
-      initiated: 'June 29, 2026 1:38 PM',
-      type: 'New Client/Matter Intake (RUSH)',
-      client: 'K2 Claims Services, LLC',
-      matterNum: '0',
-      matterDesc: 'Nicolina Marchese v. New City Westchester Group LLC d/b/a Westchester Golf & Country Club',
-      initiator: 'Cosmos Cortex (auto-intake)',
-      status: 'Draft - Intake',
-      notes: 'CM-1098466 Email - new file assignment.pdf, CM-1098466 Complaint.pdf'
-    },
-    {
-      id: 'CM-1098467',
-      tag: 'Live Conflict Search',
-      riskLevel: 'Medium',
-      jurisdiction: 'SDNY Federal',
-      leadPartner: 'A. Patel',
-      description: 'Smith v. Horizon Logistics (breach of contract)',
-      initiated: 'June 29, 2026 2:15 PM',
-      type: 'New Matter Intake',
-      client: 'Horizon Logistics Inc.',
-      matterNum: '0',
-      matterDesc: 'John Smith v. Horizon Logistics Inc. and Does 1-10',
-      initiator: 'Cosmos Cortex (auto-intake)',
-      status: 'Pending - Review',
-      notes: 'CM-1098467 Summons.pdf, Initial_Demand_Letter.pdf'
-    },
-    {
-      id: 'CM-1098468',
-      tag: 'Real Filing',
-      riskLevel: 'High',
-      jurisdiction: 'CA Superior - LA',
-      leadPartner: 'S. Goldberg',
-      description: 'Davis v. Statewide Insurance (bad faith claim)',
-      initiated: 'June 30, 2026 9:00 AM',
-      type: 'New Client/Matter Intake',
-      client: 'Statewide Insurance Co.',
-      matterNum: '0',
-      matterDesc: 'Marcus Davis v. Statewide Insurance Co.',
-      initiator: 'Jane Doe',
-      status: 'Approved',
-      notes: 'CM-1098468 Claim_File.pdf'
-    },
-    {
-      id: 'CM-1098469',
-      tag: 'Firm Book Load',
-      riskLevel: 'Low',
-      jurisdiction: 'Internal',
-      leadPartner: 'Firm Ops',
-      description: 'Aderant Extract 2026 Q2',
-      initiated: 'June 30, 2026 10:30 AM',
-      type: 'Bulk Conflict Update',
-      client: 'Internal - Firm Ops',
-      matterNum: 'N/A',
-      matterDesc: 'Quarterly Aderant data synchronization and conflict index update',
-      initiator: 'System Admin',
-      status: 'Completed',
-      notes: 'Aderant_Q2_Extract_Log.csv'
-    },
-    {
-      id: 'CM-1098470',
-      tag: 'Real Filing',
-      riskLevel: 'High',
-      jurisdiction: 'TX Dist. Harris Cty',
-      leadPartner: 'M. Chen',
-      description: 'Torres v. Apex Manufacturing (product liability)',
-      initiated: 'June 30, 2026 11:45 AM',
-      type: 'New Client/Matter Intake (RUSH)',
-      client: 'Apex Manufacturing Solutions',
-      matterNum: '0',
-      matterDesc: 'Maria Torres v. Apex Manufacturing Solutions, Regional Distributors LLC',
-      initiator: 'Cosmos Cortex (auto-intake)',
-      status: 'Draft - Intake',
-      notes: 'CM-1098470 Complaint_Product_Defect.pdf'
-    },
-    {
-      id: 'CM-1098471',
-      tag: 'Live Conflict Search',
-      riskLevel: 'Medium',
-      jurisdiction: 'FL Circuit - Miami',
-      leadPartner: 'R. Simmons',
-      description: 'Reynolds Estate (probate dispute)',
-      initiated: 'July 1, 2026 8:20 AM',
-      type: 'New Client Intake',
-      client: 'Reynolds Family Trust',
-      matterNum: '0',
-      matterDesc: 'Estate of Arthur Reynolds - Beneficiary Dispute',
-      initiator: 'John Smith',
-      status: 'Conflict Check',
-      notes: 'Trust_Documents_Redacted.pdf, Beneficiary_List.pdf'
-    }
-  ];
-
-  const [data, setData] = useState(initialTableData);
 
   const handleDeleteConfirm = () => {
     setData(data.filter(item => item.id !== rowToDelete.id));
@@ -163,38 +205,26 @@ function AppV3() {
       
       {/* Top Bright Navbar */}
       <nav className="w-full px-6 py-4 flex justify-between items-center bg-white border-b border-slate-200 shadow-sm z-20 shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="bg-orange-800 p-2 rounded-xl shadow-inner shadow-white/20">
-            <Inbox className="text-white" size={24} />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-orange-800 flex items-center gap-2">
-              Cosmos<span className="font-light text-slate-400">Helios</span>
-              <span className="text-[10px] font-bold bg-orange-600/10 text-orange-600 px-2 py-0.5 rounded-full uppercase border border-orange-600/20">
-                Intake Studio
-              </span>
-            </h1>
-            <p className="text-[11px] text-slate-700 font-medium mt-0.5">Automated Business Intake Pipeline</p>
-          </div>
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold tracking-tight text-orange-800 flex items-center">
+            <img src={LogoCh2} alt="Logo" className="logo-ch" /> <span className="font-light text-slate-400 ml-1">Intake</span>
+          </h1>
+          <div className="hidden sm:block h-5 w-px bg-slate-200 mx-2"></div>
+          <span className="hidden sm:block text-[11px] font-semibold text-slate-500 uppercase tracking-widest mt-1">
+            New Business Intake <span className="text-orange-600 lowercase mx-1 font-normal tracking-normal">|</span> Auto-filled by Cortex
+          </span>
         </div>
 
-        <div className="flex items-center gap-4">
-           <button className="hidden md:flex items-center gap-2 bg-white hover:bg-slate-50 text-orange-800 font-bold py-2 px-4 rounded-lg border border-slate-200 shadow-sm transition-all text-sm group">
-             <Upload size={16} className="text-orange-600 group-hover:scale-110 transition-transform" />
-             New Intake
-           </button>
-           <label className="hidden md:flex items-center gap-2 bg-orange-800 hover:bg-orange-900 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm cursor-pointer group border border-white/10">
-             <input type="file" className="hidden" accept=".csv,.xlsx" />
-             <Database size={16} className="text-white group-hover:scale-110 transition-transform" />
-             Load Aderant Book
-           </label>
-           
-           <div className="w-px h-8 bg-slate-200 mx-2"></div>
-           
-           <span className="text-[10px] font-bold tracking-widest uppercase text-white bg-orange-800 px-3 py-1.5 rounded-md shadow-sm flex items-center gap-1.5">
-              <AlertTriangle size={12} />
-              Confidential
-           </span>
+        <div className="flex items-center gap-3">
+          <button className="hidden md:flex items-center gap-2 bg-white hover:bg-slate-50 text-orange-800 font-bold py-2 px-4 rounded-lg border border-slate-200 shadow-sm transition-all text-sm group">
+            <Upload size={16} className="text-orange-600 group-hover:scale-110 transition-transform" />
+            New Intake
+          </button>
+          <label className="hidden md:flex items-center gap-2 bg-orange-800 hover:bg-orange-900 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:shadow-lg transition-all text-sm cursor-pointer group border border-white/10">
+            <input type="file" className="hidden" accept=".csv,.xlsx" />
+            <Database size={16} className="text-white group-hover:scale-110 transition-transform" />
+            Load Aderant Book
+          </label>
         </div>
       </nav>
 
@@ -248,13 +278,13 @@ function AppV3() {
                     <span className="text-[10px] text-slate-700">Verified court docs</span>
                   </div>
                 </div>
-                <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-3">
+                {/* <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-3">
                   <div className="bg-white p-1.5 rounded-lg shadow-sm border border-slate-100"><ShieldAlert className="text-orange-800" size={16} /></div>
                   <div className="flex flex-col">
                     <span className="text-[11px] font-bold text-orange-800">Live Conflict Search</span>
                     <span className="text-[10px] text-slate-700">History records scan</span>
                   </div>
-                </div>
+                </div> */}
                 <div className="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center gap-3">
                   <div className="bg-white p-1.5 rounded-lg shadow-sm border border-slate-100"><Database className="text-orange-600" size={16} /></div>
                   <div className="flex flex-col">
@@ -268,7 +298,7 @@ function AppV3() {
 
         {/* Center Stage — Queue or Intake view */}
         {intakeItem ? (
-          <IntakePage matter={intakeItem} onBack={() => setIntakeItem(null)} />
+          <IntakePage matter={intakeItem} onBack={handleBackFromIntake} />
         ) : (
           <div className="flex-1 overflow-y-auto p-6 lg:p-8 bg-slate-50/50">
             
@@ -288,7 +318,13 @@ function AppV3() {
                   {/* Card Header (Meta Info) */}
                   <div className="flex justify-between items-center px-6 py-3 border-b border-slate-100 bg-slate-50/50">
                     <div className="flex items-center gap-3">
-                      <span className="text-xs font-black font-mono text-orange-800 bg-slate-200/60 px-2 py-1 rounded-md">{item.id}</span>
+                      <button 
+                        onClick={() => handleOpenIntake(item)}
+                        className="text-xs font-black font-mono text-orange-800 bg-slate-200/60 hover:bg-slate-200 hover:underline px-2 py-1 rounded-md cursor-pointer transition-colors"
+                        title="Open Intake Page"
+                      >
+                        {item.id}
+                      </button>
                       <span className={`text-[10px] px-2 py-1 rounded-md font-bold uppercase tracking-widest border ${getRiskStyle(item.riskLevel)}`}>
                         {item.riskLevel} Risk
                       </span>
@@ -325,7 +361,15 @@ function AppV3() {
                            <Clock size={12}/> {item.initiated}
                          </span>
                       </div>
-                      <h3 className="text-xl font-extrabold text-orange-800 mb-2 leading-tight">{item.client}</h3>
+                      <h3 className="text-xl font-extrabold text-orange-800 mb-2 leading-tight">
+                        <button
+                          onClick={() => handleOpenIntake(item)}
+                          className="text-left text-orange-800 hover:text-orange-950 hover:underline cursor-pointer transition-colors"
+                          title="Open Intake Page"
+                        >
+                          {item.client}
+                        </button>
+                      </h3>
                       <p className="text-sm text-slate-800 leading-relaxed mb-4">{item.description}</p>
                       
                       <div className="flex flex-wrap items-center gap-6 border-t border-slate-100 pt-3">
@@ -359,10 +403,11 @@ function AppV3() {
                   {/* Card Footer */}
                   <div className="bg-white border-t border-slate-100 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <button
-                      onClick={() => setIntakeItem(item)}
-                      className="text-orange-600 hover:text-orange-700 font-bold text-sm underline underline-offset-4 decoration-2 decoration-violet-700/30 hover:decoration-violet-700 flex items-center gap-1 transition-all"
+                      onClick={() => handleOpenIntake(item)}
+                      className="w-full sm:w-auto bg-white hover:bg-slate-50 text-orange-800 border border-slate-200 font-bold text-xs py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-sm hover:shadow hover:-translate-y-0.5 cursor-pointer"
                     >
-                      Open / Intake <ArrowRight size={14} />
+                      <ExternalLink size={14} className="text-orange-800" />
+                      Open / Intake
                     </button>
                     
                     <div className="flex items-center gap-3 w-full sm:w-auto">
@@ -378,7 +423,7 @@ function AppV3() {
                         className="flex-1 sm:flex-none bg-orange-800 hover:bg-orange-900 text-white font-bold text-xs py-2 px-4 rounded-lg flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg hover:-translate-y-0.5 group"
                       >
                         <ShieldAlert size={14} className="text-orange-600 group-hover:animate-pulse" />
-                        Conflict Analysis
+                        Conflict Report
                       </button>
                     </div>
                   </div>

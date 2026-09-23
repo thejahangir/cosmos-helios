@@ -299,7 +299,7 @@ function App() {
 
   const visibleColumns = [
     'Workflow ID', 'Client', 'Description', 'Initiated', 'Status', 
-    'Open / Intake', 'Intake Summary', 'Conflict Analysis', 'Action'
+    'Open / Intake', 'Intake Summary', 'Conflict Report', 'Action'
   ];
 
   // Pagination Logic
@@ -414,12 +414,7 @@ function App() {
             </div>
           </div>
           
-          <div className="flex items-center gap-3">
-             <span className="text-[10px] font-bold tracking-widest uppercase text-white bg-red-900/80 px-2.5 py-1 rounded shadow-sm flex items-center gap-1">
-                <AlertTriangle size={10} className="text-blue-600" />
-                Confidential
-             </span>
-          </div>
+   
         </div>
 
         {/* Grid/Card Container */}
@@ -495,7 +490,7 @@ function App() {
                     <td className="p-3">
                       <button className="bg-blue-900 hover:bg-brand-dark text-white text-[11px] uppercase tracking-wide font-bold py-1.5 px-2.5 rounded whitespace-nowrap transition-colors flex items-center gap-1 shadow-sm">
                         <ShieldAlert size={12} />
-                        Conflict Analysis
+                        Conflict Report
                       </button>
                     </td>
                     <td className="p-3 sticky right-0 bg-white shadow-[-5px_0_10px_-5px_rgba(0,0,0,0.05)] border-l border-gray-100 group-hover:bg-blue-50/30">
@@ -579,7 +574,7 @@ function App() {
                            <button className="bg-gray-100 hover:bg-gray-200 text-blue-900 p-1.5 rounded transition-colors" title="Intake Summary">
                              <FileText size={14} />
                            </button>
-                           <button className="bg-blue-900 hover:bg-[#08152b] text-white p-1.5 rounded transition-colors shadow-sm" title="Conflict Analysis">
+                           <button className="bg-blue-900 hover:bg-[#08152b] text-white p-1.5 rounded transition-colors shadow-sm" title="Conflict Report">
                              <ShieldAlert size={14} />
                            </button>
                         </div>

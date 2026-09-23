@@ -21,7 +21,8 @@ export default function VersionSwitcher({ currentPath, navigate }) {
     { path: './v3', label: 'V3: Charcoal & Amethyst', icon: Sparkles }
   ];
 
-  const activeVersion = versions.find(v => currentPath.toLowerCase().endsWith(v.path.substring(1))) || versions[0];
+  const cleanPath = (currentPath || '').toLowerCase().split('?')[0].replace(/\/$/, '');
+  const activeVersion = versions.find(v => cleanPath.endsWith(v.path.substring(1)) || cleanPath === v.path.substring(1)) || versions[0];
 
   const handleNav = (e, path) => {
     navigate(e, path);
